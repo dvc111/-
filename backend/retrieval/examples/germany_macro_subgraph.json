@@ -1,0 +1,14 @@
+{
+  "question": "爱因斯坦出生国家的官方语言是什么？",
+  "topic_entities": ["阿尔伯特·爱因斯坦"],
+  "triples": [
+    {"id": "t1", "head": "阿尔伯特·爱因斯坦", "relation": "出生国家", "tail": "德国"},
+    {"id": "t2", "head": "德国", "relation": "官方语言", "tail": "德语"},
+    {"id": "t3", "head": "阿尔伯特·爱因斯坦", "relation": "职业", "tail": "物理学家"},
+    {"id": "t4", "head": "德国", "relation": "所属洲", "tail": "欧洲"},
+    {"id": "t5", "head": "欧洲", "relation": "人口", "tail": "7.4亿"},
+    {"id": "t6", "head": "德语", "relation": "语系", "tail": "印欧语系"},
+    {"id": "t7", "head": "物理学家", "relation": "研究领域", "tail": "自然科学"}
+  ]
+}
+

@@ -1,0 +1,3 @@
+{"question":"爱因斯坦出生国家的官方语言是什么？","topic_entities":["阿尔伯特·爱因斯坦"],"answer_entities":["德语"],"triples":[{"head":"阿尔伯特·爱因斯坦","relation":"出生国家","tail":"德国"},{"head":"德国","relation":"官方语言","tail":"德语"},{"head":"阿尔伯特·爱因斯坦","relation":"职业","tail":"物理学家"},{"head":"德国","relation":"所属洲","tail":"欧洲"},{"head":"德语","relation":"语系","tail":"印欧语系"}]}
+{"question":"《三体》的作者出生在哪个城市？","topic_entities":["三体"],"answer_entities":["北京"],"triples":[{"head":"三体","relation":"作者","tail":"刘慈欣"},{"head":"刘慈欣","relation":"出生地","tail":"北京"},{"head":"三体","relation":"类型","tail":"科幻小说"},{"head":"刘慈欣","relation":"职业","tail":"作家"},{"head":"北京","relation":"所属国家","tail":"中国"}]}
+
