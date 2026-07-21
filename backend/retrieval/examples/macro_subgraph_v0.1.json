@@ -1,0 +1,30 @@
+{
+  "schema_version": "0.1",
+  "question_id": "q_0001",
+  "question_text": "阿司匹林和布洛芬同时服用会有什么风险？",
+  "topic_entities": ["Q1024", "Q1088"],
+  "selected_hyper_relations": [
+    {"relation_id": "HR03", "label": "药物相互作用", "score": 0.92},
+    {"relation_id": "HR07", "label": "禁忌症", "score": 0.81}
+  ],
+  "relation_labels": {
+    "R017": "增加风险",
+    "R021": "属于药物类别"
+  },
+  "macro_subgraph": {
+    "nodes": [
+      {"entity_id": "Q1024", "label": "阿司匹林", "is_topic": true},
+      {"entity_id": "Q1088", "label": "布洛芬", "is_topic": true},
+      {"entity_id": "Q2031", "label": "胃肠道出血", "is_topic": false},
+      {"entity_id": "Q2099", "label": "肾功能损伤", "is_topic": false},
+      {"entity_id": "Q3001", "label": "非甾体抗炎药", "is_topic": false}
+    ],
+    "triples": [
+      ["Q1024", "R017", "Q2031"],
+      ["Q1088", "R017", "Q2031"],
+      ["Q1088", "R017", "Q2099"],
+      ["Q1024", "R021", "Q3001"]
+    ]
+  },
+  "max_hops": 3
+}
