@@ -1,8 +1,7 @@
 """
-通用 PyG 数据转换工具
 
-将宏观检索 / 微观检索产出的结构化数据（三元组列表、节点特征、DDE 等）
-转换为 PyTorch Geometric 的 Data 对象，供 R-GCN 训练和推理使用。
+
+将宏观和微观产出的结构化数据变成Data对象,供 R-GCN 训练和推理使用(通用 PyG 数据转换工具)
 """
 
 from __future__ import annotations

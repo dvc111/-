@@ -205,8 +205,8 @@ class RGCNNodeScorer(nn.Module):
             nn.Sigmoid(),
         )
 
-   def forward(self, x: torch.Tensor, edge_index: torch.Tensor,
-               edge_type: torch.Tensor) -> torch.Tensor:
+    def forward(self, x: torch.Tensor, edge_index: torch.Tensor,
+                edge_type: torch.Tensor) -> torch.Tensor:
         """返回节点级评分, shape (N, 1)，取值 [0,1]。"""
         node_emb = self.encoder(x, edge_index, edge_type)
         return self.scorer(node_emb)
