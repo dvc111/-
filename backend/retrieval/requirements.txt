@@ -1,0 +1,5 @@
+# 微观检索核心算法只使用 Python 标准库。
+# 本文件安装 HTTP 后端运行所需依赖；GNN 的 torch 由 backend/gnn 统一管理。
+fastapi>=0.110,<1.0
+pydantic>=2.6,<3.0
+uvicorn[standard]>=0.27,<1.0

@@ -64,7 +64,10 @@ def main() -> None:
     train_parser.set_defaults(func=_train)
 
     args = parser.parse_args()
-    args.func(args)
+    try:
+        args.func(args)
+    except (ValueError, FileNotFoundError, json.JSONDecodeError) as error:
+        parser.exit(2, f"错误：{error}\n")
 
 
 if __name__ == "__main__":
