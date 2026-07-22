@@ -1,0 +1,28 @@
+{
+  "schema_version": "0.1",
+  "question_id": "q_book_001",
+  "question_text": "《三体》的作者出生在哪个城市？",
+  "topic_entities": ["Q_THREE_BODY"],
+  "relation_labels": {
+    "R_AUTHOR": "作者",
+    "R_BIRTH_PLACE": "出生地",
+    "R_GENRE": "作品类型",
+    "R_OCCUPATION": "职业"
+  },
+  "macro_subgraph": {
+    "nodes": [
+      {"entity_id": "Q_THREE_BODY", "label": "三体", "is_topic": true},
+      {"entity_id": "Q_LIU_CIXIN", "label": "刘慈欣", "is_topic": false},
+      {"entity_id": "Q_BEIJING", "label": "北京", "is_topic": false},
+      {"entity_id": "Q_SCIFI", "label": "科幻小说", "is_topic": false},
+      {"entity_id": "Q_WRITER", "label": "作家", "is_topic": false}
+    ],
+    "triples": [
+      ["Q_THREE_BODY", "R_AUTHOR", "Q_LIU_CIXIN"],
+      ["Q_LIU_CIXIN", "R_BIRTH_PLACE", "Q_BEIJING"],
+      ["Q_THREE_BODY", "R_GENRE", "Q_SCIFI"],
+      ["Q_LIU_CIXIN", "R_OCCUPATION", "Q_WRITER"]
+    ]
+  },
+  "max_hops": 3
+}

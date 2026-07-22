@@ -15,7 +15,12 @@ def _mean(vectors: list[list[float]], width: int) -> list[float]:
 def directional_distance_encoding(
     triples: Iterable[Triple], topic_entities: Iterable[str], rounds: int = 2
 ) -> dict[str, list[float]]:
-    """计算论文中的 DDE：沿入边、出边分别进行多轮均值传播。"""
+    """计算论文中的 DDE：沿入边、出边分别进行多轮均值传播。
+
+    核心创新点：两个方向从同一主题实体标记独立传播，保留“从主题实体
+    到当前节点”和“从当前节点返回主题实体”的非对称结构信息；各轮结果
+    不覆盖而是依次拼接，因此轻量 MLP 仍能感知多跳层次。
+    """
 
     if rounds < 0:
         raise ValueError("rounds 不能为负数")
@@ -58,4 +63,3 @@ def topic_reachability(encoding: list[float]) -> float:
     """取各传播轮次中的 topic 通道最大值，作为可解释的结构相关度。"""
 
     return max(encoding[1::2], default=0.0)
-

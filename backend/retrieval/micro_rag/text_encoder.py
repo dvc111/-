@@ -3,6 +3,7 @@ from __future__ import annotations
 import hashlib
 import math
 import re
+from functools import lru_cache
 
 
 _LATIN_OR_NUMBER = re.compile(r"[a-z0-9_]+")
@@ -28,7 +29,8 @@ class HashingTextEncoder:
             raise ValueError("dimensions 至少为 16")
         self.dimensions = dimensions
 
-    def encode(self, text: str) -> list[float]:
+    @lru_cache(maxsize=8192)
+    def _encode_cached(self, text: str) -> tuple[float, ...]:
         vector = [0.0] * self.dimensions
         for token in tokenize(text):
             digest = hashlib.blake2b(token.encode("utf-8"), digest_size=8).digest()
@@ -37,15 +39,22 @@ class HashingTextEncoder:
             sign = 1.0 if (value >> 8) & 1 else -1.0
             vector[index] += sign
         norm = math.sqrt(sum(value * value for value in vector))
-        return vector if norm == 0 else [value / norm for value in vector]
+        normalized = vector if norm == 0 else [value / norm for value in vector]
+        return tuple(normalized)
+
+    def encode(self, text: str) -> list[float]:
+        """编码文本；内部缓存重复实体/关系，返回副本避免调用方修改缓存。"""
+
+        return list(self._encode_cached(text))
 
 
 def cosine(left: list[float], right: list[float]) -> float:
     if len(left) != len(right):
         raise ValueError("向量维度不一致")
-    # 编码器已归一化；映射到 [0, 1] 方便解释与融合。
+    # 编码器已归一化。无关文本的余弦值接近 0，不能映射成 0.5，
+    # 否则大量干扰三元组会获得虚高基础分；负相关统一截断为 0。
     raw = sum(a * b for a, b in zip(left, right))
-    return max(0.0, min(1.0, (raw + 1.0) / 2.0))
+    return max(0.0, min(1.0, raw))
 
 
 def token_overlap(left: str, right: str) -> float:
@@ -53,4 +62,3 @@ def token_overlap(left: str, right: str) -> float:
     if not left_set or not right_set:
         return 0.0
     return len(left_set & right_set) / math.sqrt(len(left_set) * len(right_set))
-
