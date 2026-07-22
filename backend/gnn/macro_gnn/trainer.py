@@ -1,140 +1,16 @@
-"""宏观模型训练。
-
-加载宏观训练数据集，训练 RGCNNodeClassifier（二分类：节点是不是答案），
-保存 macro_model.pth。
-宏观 GNN 的权重必须用宏观子图训练出来，与微观分开。
-"""
-
-from __future__ import annotations
-
-import sys
-from pathlib import Path
-from typing import Optional
-
-import torch
-import torch.nn as nn
-
-_BACKEND_DIR = str(Path(__file__).resolve().parents[2])
-if _BACKEND_DIR not in sys.path:
-    sys.path.insert(0, _BACKEND_DIR)
-
-from gnn.core.model import RGCNNodeClassifier
-from gnn.core.base_loader import GraphData
-
-
-CHECKPOINT_CONFIG_KEY = "_model_config"
-
-
-def _run_one_epoch(
-    model: nn.Module,
-    data: list[tuple[GraphData, torch.Tensor]],
-    optimizer: Optional[torch.optim.Optimizer],
-    device: torch.device,
-) -> float:
-    """运行一个 epoch（训练或评估），返回平均 loss。"""
-    is_train = optimizer is not None
-    model.train() if is_train else model.eval()
-
-    total_loss = 0.0
-    total_nodes = 0
-
-    with torch.set_grad_enabled(is_train):
-        for graph_data, labels in data:
-            x = graph_data.node_features.to(device)
-            ei = graph_data.edge_index.to(device)
-            et = graph_data.edge_type.to(device)
-            lbl = labels.to(device)
-
+"""宏观模型训练：RGCNNodeClassifier 二分类（节点是不是答案）。"""
+import torch; import torch.nn.functional as F
+def train_macro_model(model, train_data, epochs=20, lr=0.001, save_path="macro_model.pth"):
+    opt = torch.optim.Adam(model.parameters(), lr=lr)
+    for ep in range(1, epochs + 1):
+        total_loss = 0.0; total = 0; model.train()
+        for gd, lbl in train_data:
+            x, ei, et = gd.node_features, gd.edge_index, gd.edge_type
             logits = model(x, ei, et)
-            loss = nn.functional.cross_entropy(logits, lbl)
-
-            if is_train:
-                optimizer.zero_grad()
-                loss.backward()
-                optimizer.step()
-
-            total_loss += loss.item() * lbl.size(0)
-            total_nodes += lbl.size(0)
-
-    return total_loss / total_nodes
-
-
-def train_macro_model(
-    train_data: list[tuple[GraphData, torch.Tensor]],
-    val_data: Optional[list[tuple[GraphData, torch.Tensor]]] = None,
-    in_dim: int = 769,
-    hidden_dim: int = 128,
-    num_relations: int = 10,
-    num_classes: int = 2,
-    num_layers: int = 2,
-    dropout: float = 0.2,
-    lr: float = 0.001,
-    epochs: int = 50,
-    save_path: str = "macro_model.pth",
-    device: Optional[torch.device] = None,
-    print_every: int = 10,
-) -> RGCNNodeClassifier:
-    """训练宏观 RGCNNodeClassifier。
-
-    Args:
-        train_data:    训练集，每项 (GraphData, labels)，labels 为 (N,) 的 0/1 张量。
-        val_data:      验证集（可选），格式同 train_data。
-        in_dim:        输入特征维度。默认 769 = BERT(768) + is_topic(1)。
-        hidden_dim:    隐藏层维度。
-        num_relations: 关系类型总数。
-        num_classes:   分类数，二分类默认 2。
-        num_layers:    RGCN 层数。
-        dropout:       Dropout 比率。
-        lr:            学习率。
-        epochs:        训练轮数。
-        save_path:     模型保存路径，默认 macro_model.pth。
-        device:        训练设备。
-        print_every:   每 N 轮打印一次 loss。
-
-    Returns:
-        训练好的 RGCNNodeClassifier 实例。
-    """
-    target_device = device or (
-        torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
-    )
-
-    model = RGCNNodeClassifier(
-        in_dim=in_dim,
-        hidden_dim=hidden_dim,
-        num_relations=num_relations,
-        num_classes=num_classes,
-        num_layers=num_layers,
-        dropout=dropout,
-    ).to(target_device)
-
-    optimizer = torch.optim.Adam(model.parameters(), lr=lr)
-
-    for epoch in range(1, epochs + 1):
-        train_loss = _run_one_epoch(model, train_data, optimizer, target_device)
-
-        val_loss: Optional[float] = None
-        if val_data:
-            val_loss = _run_one_epoch(model, val_data, None, target_device)
-
-        if epoch == 1 or epoch % print_every == 0 or epoch == epochs:
-            msg = f"[{epoch:3d}/{epochs}]  train_loss={train_loss:.4f}"
-            if val_loss is not None:
-                msg += f"  val_loss={val_loss:.4f}"
-            print(msg)
-
-    # ── 保存 checkpoint ──
-    checkpoint = {
-        CHECKPOINT_CONFIG_KEY: {
-            "in_dim": in_dim,
-            "hidden_dim": hidden_dim,
-            "num_relations": num_relations,
-            "num_classes": num_classes,
-            "num_layers": num_layers,
-            "dropout": dropout,
-        },
-    }
-    checkpoint.update(model.state_dict())
-    torch.save(checkpoint, save_path)
-    print(f"Model saved to {save_path}")
-
+            loss = F.cross_entropy(logits, lbl.to(x.device))
+            opt.zero_grad(); loss.backward(); opt.step()
+            total_loss += loss.item() * lbl.size(0); total += lbl.size(0)
+        if ep == 1 or ep % 10 == 0: print(f"[{ep}/{epochs}] loss={total_loss/total:.4f}")
+    ckpt = {"_model_config": {"in_dim": model.in_dim, "hidden_dim": model.hidden_dim, "num_relations": model.num_relations, "num_layers": 2, "num_classes": 2, "dropout": 0.2}}
+    ckpt.update(model.state_dict()); torch.save(ckpt, save_path)
     return model
