@@ -1,79 +1,62 @@
-"""宏观检索 -> GNN 推理，全流程演示（宏观+GNN 软著对应的验证脚本）。"""
-
-import sys, json, os
+"""Macro pipeline with multi-question support."""
+import sys, os
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "backend"))
-
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), "REKNOS_macro"))
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), "REKNOS_macro", "macro_retrieval"))
 import torch
+from kg_store import KGStore
+from pipeline import macro_retrieval
 from gnn.core.model import RGCNNodeClassifier
 from gnn.macro_gnn.inference import run_macro_inference
+from gnn.macro_gnn.loader import assemble_macro_subgraph
+from retrieval.micro_rag.text_encoder import HashingTextEncoder
 
+def mock_llm(prompt):
+    if "候选超关系" in prompt:
+        if "副作用" in prompt or "导致" in prompt:
+            return "{不良反应 (Score: 0.90)}: effects\n{禁忌症 (Score: 0.70)}: caution\n"
+        if "类别" in prompt or "什么类" in prompt:
+            return "{药物分类 (Score: 0.92)}: category\n{适应症 (Score: 0.41)}: indication\n"
+        if "华法林" in prompt:
+            return "{药物相互作用 (Score: 0.90)}: interaction\n{不良反应 (Score: 0.60)}: effects\n"
+        return "{药物相互作用 (Score: 0.92)}: risk\n{禁忌症 (Score: 0.81)}: risk\n"
+    if "华法林和什么药有相互作用" in prompt: return "华法林"
+    if "布洛芬会导致什么" in prompt: return "布洛芬"
+    if "阿司匹林有什么副作用" in prompt: return "阿司匹林"
+    if "阿司匹林属于什么类别的药" in prompt: return "阿司匹林"
+    if prompt.count("阿司匹林和布洛芬同时服用会有什么风险") >= 2: return "阿司匹林\n布洛芬"
+    if "对乙酰氨基酚" in prompt: return "对乙酰氨基酚"
+    return ""
 
 def main():
-    print("=" * 50)
-    print("宏观 + GNN 全流程演示")
-    print("=" * 50)
-
-    # ── 1. 加载宏观子图数据 ──
-    macro_path = os.path.join("backend", "retrieval", "examples", "macro_subgraph_v0.1.json")
-    with open(macro_path, encoding="utf-8") as f:
-        payload = json.load(f)
-
-    print(f"\n提问: {payload['question_text']}")
-    print(f"主题实体: {payload['topic_entities']}")
-    topic_ids = payload["topic_entities"]
-    macro_sg = payload["macro_subgraph"]
-    triples = [tuple(t) for t in macro_sg["triples"]]
-    rel_labels = payload["relation_labels"]
-
-    # 造 BERT 嵌入（768维，演示用随机数）
-    entity_embeddings = {}
-    entity_labels = {}
-    for node in macro_sg["nodes"]:
-        eid = node["entity_id"]
-        entity_embeddings[eid] = torch.randn(768)
-        entity_labels[eid] = node["label"]
-
-    print(f"\n宏观子图: {len(macro_sg['nodes'])} 实体, {len(triples)} 三元组")
-
-    # ── 2. 装盘 → GraphData ──
-    from gnn.macro_gnn.loader import assemble_macro_subgraph
-    gd = assemble_macro_subgraph(triples, entity_embeddings, topic_ids)
-    print(f"GraphData: {gd.num_nodes} 节点, {gd.num_edges} 边, 特征 {list(gd.node_features.shape)}")
-    is_topic_col = gd.node_features[:, -1].tolist()
-    print(f"is_topic 列: {is_topic_col}")
-
-    # ── 3. GNN 推理 ──
-    num_rels = gd.num_relations
-    model = RGCNNodeClassifier(in_dim=769, hidden_dim=64, num_relations=num_rels)
-    relation_id_map = {i: rid for i, rid in enumerate(sorted(rel_labels.keys()))}
-
-    result = run_macro_inference(
-        model=model,
-        graph_data=gd,
-        topic_entity_ids=topic_ids,
-        entity_embeddings=entity_embeddings,
-        entity_labels=entity_labels,
-        relation_labels=rel_labels,
-        relation_id_map=relation_id_map,
-        top_k=5,
-        max_hops=3,
-    )
-
-    print(f"\nGNN 推理结果:")
-    for c in result["candidate_answers"]:
-        label = c.get("label", c["entity_id"])
-        print(f"  候选: {label} ({c['prob']:.3f})")
-
+    kg = KGStore(os.path.join(os.path.dirname(__file__), "REKNOS_macro", "kg", "toy_medical_kg.json"))
+    encoder = HashingTextEncoder(128)
+    qs = ["阿司匹林和布洛芬同时服用会有什么风险？","阿司匹林有什么副作用？","布洛芬会导致什么？","阿司匹林属于什么类别的药？","华法林和什么药有相互作用？"]
+    qi = 0
+    if len(sys.argv) > 1:
+        try: qi = max(0, min(len(qs)-1, int(sys.argv[1])-1))
+        except: pass
+    print(f"问题 {qi+1}/{len(qs)}: {qs[qi]}")
+    result = macro_retrieval(question_id="q1", question_text=qs[qi], kg=kg, llm_fn=mock_llm, top_k_hyper_relations=2, max_hops=2)
+    hrs = result["selected_hyper_relations"]
+    print("选中超关系：" + "，".join([f"{hr['label']} ({hr['score']})" for hr in hrs]))
+    print(f"宏观子图规模：{len(result['macro_subgraph']['nodes'])}节点，{len(result['macro_subgraph']['triples'])}边")
+    print("主题实体：" + " ".join([kg.entity_label(t) for t in result["topic_entities"]]))
+    sub = result["macro_subgraph"]; topic_ids = result["topic_entities"]
+    triples = [tuple(t) for t in sub["triples"]]; emb,lbl = {},{}
+    for n in sub["nodes"]:
+        lbl[n["entity_id"]] = n["label"]; emb[n["entity_id"]] = torch.tensor(encoder.encode(n["label"]))
+    ri = sorted({r for _,r,_ in triples}); rm = {i:rid for i,rid in enumerate(ri)}
+    rl = {rid:kg.relations[rid]["label"] for rid in ri}
+    gd = assemble_macro_subgraph(triples, emb, topic_ids)
+    mp = os.path.join(os.path.dirname(__file__), "macro_model_full.pth")
+    if os.path.exists(mp):
+        model = torch.load(mp, map_location="cpu", weights_only=False); print("已加载 macro_model_full.pth")
+    else:
+        model = RGCNNodeClassifier(in_dim=gd.node_features.size(-1), hidden_dim=64, num_relations=gd.num_relations); print("使用随机权重")
+    result = run_macro_inference(model=model, graph_data=gd, topic_entity_ids=topic_ids, entity_embeddings=emb, entity_labels=lbl, relation_labels=rl, relation_id_map=rm, top_k=5, max_hops=3)
     from gnn.pathgen.verbalizer import verbalize
-    for rp in result["reasoning_paths"]:
-        ans_id = rp["answer_entity_id"]
-        ans_label = entity_labels.get(ans_id, ans_id)
-        print(f"  路径 {ans_label}: {verbalize(rp['path'])}")
-
-    print("\n" + "=" * 50)
-    print("宏观+GNN 演示完成")
-    print("=" * 50)
-
-
-if __name__ == "__main__":
-    main()
+    print("\n候选答案:")
+    for c in result["candidate_answers"]: print(f"  {c.get('label', c['entity_id'])} ({c['prob']:.3f})")
+    for rp in result["reasoning_paths"]: print(f"  路径: {verbalize(rp['path'])}")
+if __name__ == "__main__": main()
