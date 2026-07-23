@@ -14,7 +14,8 @@ def main():
     print("=" * 50)
 
     # 1. 加载示例宏观子图
-    macro_path = os.path.join("backend", "retrieval", "examples", "macro_subgraph_v0.1.json")
+    default = os.path.join("backend", "retrieval", "examples", "macro_subgraph_v0.1.json")
+    macro_path = sys.argv[1] if len(sys.argv) > 1 else default
     with open(macro_path, encoding="utf-8") as f:
         payload = json.load(f)
     print(f"\n提问: {payload['question_text']}")
@@ -52,6 +53,19 @@ def main():
     in_dim = evidence["feature_spec"]["gnn_input_dim"]
     num_rels = gd.num_relations
     model = RGCNNodeScorer(in_dim=in_dim, hidden_dim=64, num_relations=num_rels)
+    # 加载训练好的完整模型
+    full_path = os.path.join(os.path.dirname(__file__), "micro_model_full.pth")
+    if os.path.exists(full_path):
+        model = torch.load(full_path, map_location="cpu", weights_only=False)
+        print("已加载 micro_model_full.pth")
+    else:
+        state_path = os.path.join(os.path.dirname(__file__), "micro_model.pth")
+        if os.path.exists(state_path):
+            model.load_state_dict(torch.load(state_path, map_location="cpu"), strict=False)
+            print("已加载 micro_model.pth")
+        else:
+            print("未找到训练好的模型，使用随机权重")
+            print("未找到训练好的模型，使用随机权重")
     relation_id_map = {i: rid for i, rid in enumerate(sorted(rel_labels))} if rel_labels else None
 
     topic_ids = payload["topic_entities"]
