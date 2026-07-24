@@ -36,11 +36,13 @@ def _load(name):
 
 # 加载训练好的模型
 if MODEL_PATH.exists():
-    model = torch.load(str(MODEL_PATH), map_location="cpu", weights_only=False)
-    print("已加载模型:", MODEL_PATH.name)
+    sd = torch.load(str(MODEL_PATH), map_location="cpu", weights_only=True)
+    model = RGCNNodeScorer(in_dim=138, hidden_dim=64, num_relations=4)
+    model.load_state_dict(sd, strict=False)
+    print("?????:", MODEL_PATH.name)
 else:
     model = RGCNNodeScorer(in_dim=138, hidden_dim=64, num_relations=4)
-    print("使用随机权重")
+    print("??????")
 
 # 预加载默认示例
 _cache["aspirin"] = _load("aspirin")

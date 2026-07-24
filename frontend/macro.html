@@ -318,7 +318,10 @@
       showLoading();
 
       try {
-        const response = await fetch("/api/macro-infer", { headers: { Accept: "application/json" } });
+        const params = new URLSearchParams(window.location.search);
+        const qParam = params.get("q");
+        const apiUrl = qParam ? "/api/macro-infer?q=" + qParam : "/api/macro-infer";
+        const response = await fetch(apiUrl, { headers: { Accept: "application/json" } });
         if (!response.ok) throw new Error(`服务器返回 ${response.status}`);
 
         const data = await response.json();

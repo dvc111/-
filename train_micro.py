@@ -48,9 +48,9 @@ def main():
 
     model = RGCNNodeScorer(in_dim=in_dim, hidden_dim=64, num_relations=max_rels)
     print(f"\n模型: in_dim={in_dim}, num_relations={max_rels}")
-    train_micro_model(model, train_data, epochs=30, save_path="micro_model.pth")
+    train_micro_model(model, train_data, epochs=20, save_path="micro_model.pth")
     torch.save(model.state_dict(), "micro_model.pth")
-    torch.save(model, "micro_model_full.pth")  # ????????
+    torch.save(model, "micro_model_full.pth")  
 
     # 验证
     for i, cfg in enumerate(train_configs):

@@ -53,19 +53,14 @@ def main():
     in_dim = evidence["feature_spec"]["gnn_input_dim"]
     num_rels = gd.num_relations
     model = RGCNNodeScorer(in_dim=in_dim, hidden_dim=64, num_relations=num_rels)
-    # 加载训练好的完整模型
-    full_path = os.path.join(os.path.dirname(__file__), "micro_model_full.pth")
-    if os.path.exists(full_path):
-        model = torch.load(full_path, map_location="cpu", weights_only=False)
-        print("已加载 micro_model_full.pth")
+    # ?????????????????
+    state_path = os.path.join(os.path.dirname(__file__), "micro_model.pth")
+    if os.path.exists(state_path):
+        state_dict = torch.load(state_path, map_location="cpu", weights_only=True)
+        model.load_state_dict(state_dict, strict=False)
+        print("??? micro_model.pth")
     else:
-        state_path = os.path.join(os.path.dirname(__file__), "micro_model.pth")
-        if os.path.exists(state_path):
-            model.load_state_dict(torch.load(state_path, map_location="cpu"), strict=False)
-            print("已加载 micro_model.pth")
-        else:
-            print("未找到训练好的模型，使用随机权重")
-            print("未找到训练好的模型，使用随机权重")
+        print("????????????????")
     relation_id_map = {i: rid for i, rid in enumerate(sorted(rel_labels))} if rel_labels else None
 
     topic_ids = payload["topic_entities"]

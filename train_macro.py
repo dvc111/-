@@ -33,13 +33,15 @@ def mock_llm(prompt):
 
 
 def main():
-    kg = KGStore(os.path.join(os.path.dirname(__file__), "REKNOS_macro", "kg", "toy_medical_kg.json"))
+    kg = KGStore(os.path.join(os.path.dirname(__file__), "backend", "retrieval", "REKNOS_macro", "kg", "toy_medical_kg_new.json"))
     encoder = HashingTextEncoder(128)
 
     train_configs = [
         ("阿司匹林和布洛芬同时服用会有什么风险？", ["Q2031", "Q2099"]),
+        ("布洛芬会导致什么？", ["Q2031", "Q2099"]),
         ("阿司匹林有什么副作用？", ["Q2031", "Q2200", "Q2300"]),
-        ("华法林和什么药有相互作用？", ["Q1024", "Q2100"]),
+        ("阿司匹林属于什么类别的药？", ["Q3000", "Q3001"]),
+        ("华法林和什么药有相互作用？", ["Q1024", "Q1088"]),
     ]
 
     train_data = []
@@ -77,7 +79,7 @@ def main():
     model = RGCNNodeClassifier(in_dim=in_dim, hidden_dim=64, num_relations=max_rels)
 
     print(f"训练: in_dim={in_dim}, num_relations={max_rels}, 数据量={len(train_data)}")
-    train_macro_model(model, train_data, epochs=30, save_path="macro_model.pth")
+    train_macro_model(model, train_data, epochs=15, save_path="macro_model.pth")
     torch.save(model.state_dict(), "macro_model.pth")
     torch.save(model, "macro_model_full.pth")
     print("已完成: macro_model.pth + macro_model_full.pth")
