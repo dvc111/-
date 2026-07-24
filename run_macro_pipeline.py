@@ -29,7 +29,7 @@ def mock_llm(prompt):
     return ""
 
 def main():
-    kg = KGStore(os.path.join(os.path.dirname(__file__), "backend", "retrieval", "REKNOS_macro", "kg", "toy_medical_kg_new.json"))
+    kg = KGStore(os.path.join(os.path.dirname(__file__), "backend", "retrieval", "REKNOS_macro", "kg", "toy_medical_kg_new1.json"))
     encoder = HashingTextEncoder(128)
     qs = ["阿司匹林和布洛芬同时服用会有什么风险？","阿司匹林有什么副作用？","布洛芬会导致什么？","阿司匹林属于什么类别的药？","华法林和什么药有相互作用？"]
     qi = 0

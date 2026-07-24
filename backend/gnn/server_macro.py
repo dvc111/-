@@ -16,7 +16,7 @@ from gnn.macro_gnn.inference import run_macro_inference
 from gnn.macro_gnn.loader import assemble_macro_subgraph
 from retrieval.micro_rag.text_encoder import HashingTextEncoder
 FRONTEND = ROOT / "frontend"
-KG_PATH = str(ROOT / "backend" / "retrieval" / "REKNOS_macro" / "kg" / "toy_medical_kg_new.json")
+KG_PATH = str(ROOT / "backend" / "retrieval" / "REKNOS_macro" / "kg" / "toy_medical_kg_new1.json")
 MODEL_PATH = ROOT / "macro_model_full.pth"
 
 QS = [

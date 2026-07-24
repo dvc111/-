@@ -33,7 +33,7 @@ def mock_llm(prompt):
 
 
 def main():
-    kg = KGStore(os.path.join(os.path.dirname(__file__), "backend", "retrieval", "REKNOS_macro", "kg", "toy_medical_kg_new.json"))
+    kg = KGStore(os.path.join(os.path.dirname(__file__), "backend", "retrieval", "REKNOS_macro", "kg", "toy_medical_kg_new1.json"))
     encoder = HashingTextEncoder(128)
 
     train_configs = [
