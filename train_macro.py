@@ -1,9 +1,8 @@
-"""训练宏观 GNN 模型。用医疗 KG 自动生成训练数据，保存 macro_model.pth。"""
-
 import sys, os
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "backend"))
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "REKNOS_macro"))
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "REKNOS_macro", "macro_retrieval"))
+
 
 import torch
 from kg_store import KGStore
@@ -16,13 +15,15 @@ from retrieval.micro_rag.text_encoder import HashingTextEncoder
 
 def mock_llm(prompt):
     if "候选超关系" in prompt:
-        if "副作用" in prompt or "导致" in prompt:
-            return "{不良反应 (Score: 0.90)}: effects\n{禁忌症 (Score: 0.70)}: caution\n"
-        if "类别" in prompt or "什么类" in prompt:
-            return "{药物分类 (Score: 0.92)}: category\n{适应症 (Score: 0.41)}: indication\n"
         if "华法林" in prompt:
-            return "{药物相互作用 (Score: 0.90)}: interaction\n{不良反应 (Score: 0.60)}: effects\n"
-        return "{药物相互作用 (Score: 0.92)}: risk\n{禁忌症 (Score: 0.81)}: risk\n"
+            return "{药物相互作用 (Score: 0.90)}: interaction\n{药物分类 (Score: 0.70)}: category\n"
+        if "导致" in prompt:
+            return "{不良反应 (Score: 0.90)}: effects\n{药物相互作用 (Score: 0.50)}: interaction\n"
+        if "副作用" in prompt:
+            return "{不良反应 (Score: 0.90)}: effects\n{适应症 (Score: 0.30)}: indication\n"
+        if "类别" in prompt or "什么类" in prompt:
+            return "{药物分类 (Score: 0.90)}: category\n{药理机制 (Score: 0.50)}: mechanism\n"
+        return "{药物相互作用 (Score: 0.95)}: risk\n{禁忌症 (Score: 0.85)}: risk\n"
     if "华法林和什么药有相互作用" in prompt: return "华法林"
     if "布洛芬会导致什么" in prompt: return "布洛芬"
     if "阿司匹林有什么副作用" in prompt: return "阿司匹林"
@@ -31,8 +32,9 @@ def mock_llm(prompt):
     if "对乙酰氨基酚" in prompt: return "对乙酰氨基酚"
     return ""
 
-
 def main():
+
+   
     kg = KGStore(os.path.join(os.path.dirname(__file__), "backend", "retrieval", "REKNOS_macro", "kg", "toy_medical_kg_new1.json"))
     encoder = HashingTextEncoder(128)
 
@@ -75,11 +77,15 @@ def main():
         if in_dim is None:
             in_dim = gd.node_features.size(-1)
 
+
+    
     max_rels = max(gd.num_relations for gd, _ in train_data)
     model = RGCNNodeClassifier(in_dim=in_dim, hidden_dim=64, num_relations=max_rels)
 
     print(f"训练: in_dim={in_dim}, num_relations={max_rels}, 数据量={len(train_data)}")
+
     train_macro_model(model, train_data, epochs=15, save_path="macro_model.pth")
+    
     torch.save(model.state_dict(), "macro_model.pth")
     torch.save(model, "macro_model_full.pth")
     print("已完成: macro_model.pth + macro_model_full.pth")

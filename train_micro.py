@@ -1,5 +1,3 @@
-"""训练微观 GNN 模型。用 3 个示例自动生成训练数据，保存 micro_model.pth。"""
-
 import sys, os, json
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "backend"))
 
@@ -11,6 +9,7 @@ from gnn.micro_gnn.loader import assemble_micro_subgraph
 
 
 def main():
+
     train_configs = [
         {"json": "backend/retrieval/examples/macro_subgraph_v0.1.json",
          "answers": ["Q2031", "Q2099"]},
@@ -25,9 +24,18 @@ def main():
     in_dim = None
     max_rels = 0
 
+
+    # ── 逐个示例生成训练数据 ──
+    # 对每个示例:
+    #   1. 读取JSON → 得到子图(payload)
+    #   2. build_micro_evidence_subgraph() → 微观检索+DDE计算
+    #   3. assemble_micro_subgraph() → 三元组+DDE→GraphData
+    #   4. 标注正确答案(label=1.0), 其他节点label=0.0
+    #   5. 加入 train_data 列表
     for cfg in train_configs:
         with open(cfg["json"], encoding="utf-8") as f:
             payload = json.load(f)
+
         evidence = build_micro_evidence_subgraph(payload, retriever, top_k=20)
         triples = [et["triple"] for et in evidence["evidence_triples"]]
         entity_emb = {nf["entity_id"]: torch.tensor(nf["text_embedding"]) for nf in evidence["node_features"]}
@@ -46,13 +54,15 @@ def main():
         max_rels = max(max_rels, gd.num_relations)
         print(f"  {payload['question_text']}: {gd.num_nodes} 节点, {gd.num_relations} 种关系")
 
+
     model = RGCNNodeScorer(in_dim=in_dim, hidden_dim=64, num_relations=max_rels)
     print(f"\n模型: in_dim={in_dim}, num_relations={max_rels}")
     train_micro_model(model, train_data, epochs=20, save_path="micro_model.pth")
     torch.save(model.state_dict(), "micro_model.pth")
     torch.save(model, "micro_model_full.pth")  
 
-    # 验证
+
+    
     for i, cfg in enumerate(train_configs):
         with open(cfg["json"], encoding="utf-8") as f:
             payload = json.load(f)

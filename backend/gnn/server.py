@@ -15,7 +15,7 @@ from gnn.micro_gnn.inference import run_micro_inference
 from gnn.micro_gnn.loader import assemble_micro_subgraph
 
 EXAMPLES_DIR = Path(__file__).resolve().parents[2] / "backend" / "retrieval" / "examples"
-MODEL_PATH = Path(__file__).resolve().parents[2] / "micro_model_full.pth"
+MODEL_PATH = Path(__file__).resolve().parents[2] / "micro_model.pth"
 FRONTEND_DIR = Path(__file__).resolve().parents[2] / "frontend"
 
 retriever = MicroRetriever()

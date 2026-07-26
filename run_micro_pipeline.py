@@ -1,7 +1,6 @@
-""" 微观检索 -> GNN 推理，全流程演示。"""
-
 import sys, json, os
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "backend"))
+
 
 import torch
 from retrieval.micro_rag import build_micro_evidence_subgraph, MicroRetriever
@@ -13,7 +12,6 @@ def main():
     print("微观 + GNN")
     print("=" * 50)
 
-    # 1. 加载示例宏观子图
     default = os.path.join("backend", "retrieval", "examples", "macro_subgraph_v0.1.json")
     macro_path = sys.argv[1] if len(sys.argv) > 1 else default
     with open(macro_path, encoding="utf-8") as f:
@@ -21,7 +19,6 @@ def main():
     print(f"\n提问: {payload['question_text']}")
     print(f"主题实体: {payload['topic_entities']}")
 
-    # 2. 微观检索（DDE + MLP 评分）
     retriever = MicroRetriever()
     evidence = build_micro_evidence_subgraph(payload, retriever, top_k=20)
     print(f"\n微观检索: 筛出 {len(evidence['evidence_triples'])} 条证据三元组")
@@ -33,7 +30,6 @@ def main():
     node_feats = evidence["node_features"]
     rel_labels = evidence["relation_labels"]
 
-    # 3. 组装 GNN 输入
     triples = [et["triple"] for et in ets]
     entity_embeddings = {}
     entity_labels = {}
@@ -49,21 +45,21 @@ def main():
     gd = assemble_micro_subgraph(triples, entity_embeddings, dde)
     print(f"\n子图: {gd.num_nodes} 节点, {gd.num_edges} 边")
 
-    # 4. GNN 推理
     in_dim = evidence["feature_spec"]["gnn_input_dim"]
     num_rels = gd.num_relations
     model = RGCNNodeScorer(in_dim=in_dim, hidden_dim=64, num_relations=num_rels)
-    # ?????????????????
+   
     state_path = os.path.join(os.path.dirname(__file__), "micro_model.pth")
     if os.path.exists(state_path):
         state_dict = torch.load(state_path, map_location="cpu", weights_only=True)
         model.load_state_dict(state_dict, strict=False)
-        print("??? micro_model.pth")
+        print("micro_model.pth")
     else:
         print("????????????????")
     relation_id_map = {i: rid for i, rid in enumerate(sorted(rel_labels))} if rel_labels else None
 
     topic_ids = payload["topic_entities"]
+
     result = run_micro_inference(
         model=model,
         graph_data=gd,
@@ -76,6 +72,7 @@ def main():
         top_k=5,
         max_hops=3,
     )
+
 
     print(f"\nGNN 推理结果:")
     for c in result["candidate_answers"]:
