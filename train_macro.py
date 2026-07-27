@@ -10,7 +10,7 @@ from pipeline import macro_retrieval
 from gnn.core.model import RGCNNodeClassifier
 from gnn.macro_gnn.trainer import train_macro_model
 from gnn.macro_gnn.loader import assemble_macro_subgraph
-from retrieval.micro_rag.text_encoder import HashingTextEncoder
+from gnn.core.encoder import BertTextEncoder
 
 
 def mock_llm(prompt):
@@ -36,7 +36,7 @@ def main():
 
    
     kg = KGStore(os.path.join(os.path.dirname(__file__), "backend", "retrieval", "REKNOS_macro", "kg", "toy_medical_kg_new1.json"))
-    encoder = HashingTextEncoder(128)
+    encoder = BertTextEncoder()
 
     train_configs = [
         ("阿司匹林和布洛芬同时服用会有什么风险？", ["Q2031", "Q2099"]),
