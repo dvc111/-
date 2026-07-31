@@ -2,8 +2,6 @@
 """
 本地知识图谱存取层。
 
-原 REKNOS 项目通过 SPARQL 查询 Freebase / Wikidata（freebase_func.py）。
-按本次任务约束（不使用 Freebase/Wikidata、不下载大型 KG），这里替换为
 一个加载本地 JSON 小型 KG 的内存索引，对外提供与原版语义类似的查询能力：
 - 根据实体 id 找邻居三元组（对应原版 relation_search_prune 系列函数）
 - 根据超关系 id 找到其下属具体关系（对应超关系分组）

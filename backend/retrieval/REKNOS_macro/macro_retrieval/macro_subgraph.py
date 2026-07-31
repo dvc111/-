@@ -1,19 +1,11 @@
 # -*- coding: utf-8 -*-
 """
-宏观子图裁剪模块（对应模块接口文档 1. 中 macro_subgraph 字段）。
+宏观子图裁剪模块
 
 核心创新点：
 基于超关系引导的宏观 BFS 裁剪：
-由“全图搜索”转变为“高相关领域子图搜索”，在保证候选覆盖率的同时减少后续 GNN 推理噪声。
+由“全图搜索”转变为“高相关领域子图搜索”，在保证候选覆盖率的同时减少后续 GNN 推理噪音。
 
-延续原 REKNOS 项目 relation_search_prune_2hop / entity_prune 的思路：
-- relation_search_prune_2hop：从主题实体出发按跳数展开搜索；
-- entity_prune：按分数保留 top-width 的候选，剪掉低分节点。
-
-区别：原版是在具体 relation 粒度上做多跳 SPARQL 查询 + LLM 关系选择；
-这里按文档要求，用“已经选定的高分超关系”来约束图遍历方向（宏观检索），
-在本地小 KG 上做多跳 BFS，输出一个供后续 GNN 模块直接使用的候选子图，
-不再重新访问完整知识图谱。
 """
 
 from typing import List, Dict, Set, Tuple

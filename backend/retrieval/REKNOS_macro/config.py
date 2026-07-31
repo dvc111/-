@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """
 全局配置。
-延续原 REKNOS 项目 main_freebase.py 中用 argparse 集中管理超参数的思路，
+用 argparse 集中管理超参数，
 这里改为一个可被 argparse 覆盖的默认配置模块，方便脚本 / 单元测试共用。
 """
 
@@ -13,10 +13,10 @@ OLLAMA_BASE_URL = "http://localhost:11434/v1"
 OLLAMA_API_KEY = "ollama"          # Ollama 不校验 key，任意字符串即可
 LLM_MAX_TOKENS = 512
 LLM_TEMPERATURE = 0.2
-LLM_MAX_RETRY = 3                  # 与原版 run_llm 的“死循环重试”不同，本地演示环境下重试有限次数
+LLM_MAX_RETRY = 3                  # 本地演示环境下重试有限次数
 
 # ---- 知识图谱 ----
-DEFAULT_KG_PATH = os.path.join(os.path.dirname(__file__), "kg", "toy_medical_kg.json")
+DEFAULT_KG_PATH = os.path.join(os.path.dirname(__file__), "kg", "toy_medical_kg_new1.json")
 
 # ---- 宏观检索超参数（对应原版 args.width / args.depth） ----
 TOP_K_HYPER_RELATIONS = 2      # 每次选取的高分超关系数量，对应文档 selected_hyper_relations

@@ -1,0 +1,22 @@
+[
+    {
+        "question_id":"q1",
+        "question_text":"阿司匹林和布洛芬同时服用会有什么风险？"
+    },
+    {
+        "question_id":"q2",
+        "question_text":"阿司匹林有什么副作用？"
+    },
+    {
+        "question_id":"q3",
+        "question_text":"布洛芬会导致什么？"
+    },
+    {
+        "question_id":"q4",
+        "question_text":"阿司匹林属于什么类别的药？"
+    },
+    {
+        "question_id":"q5",
+        "question_text":"华法林和什么药有相互作用？"
+    }
+]

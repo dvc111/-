@@ -1,20 +1,15 @@
 # -*- coding: utf-8 -*-
 """
-宏观检索模块总装配（软著一：宏观检索 + GNN 中的“宏观检索”部分，不含 GNN）。
+宏观检索模块总装配
 
 核心创新点：
 实体链接 → 超关系语义评分 → 宏观子图裁剪形成分层检索链路，
 为后续 GNN 候选答案筛选提供低噪声、高相关性的候选知识空间。
 
-对应模块接口文档《1. Agent + 宏观检索模块 -> GNN推理模块》中的 macro_subgraph 接口，
-产出字段：schema_version / question_id / question_text / entity_linking /
-topic_entities / selected_hyper_relations / macro_subgraph / max_hops。
-
 三个子步骤：
 1. entity_linking.link_entities        —— 实体链接
 2. hyper_relation_scoring.score_hyper_relations —— 超关系语义评分
 3. macro_subgraph.prune_macro_subgraph —— 宏观子图裁剪
-均延续原 REKNOS 项目"LLM 提议 + 确定性规则解析/打分"的组合方法思想。
 """
 
 from typing import Optional, Callable

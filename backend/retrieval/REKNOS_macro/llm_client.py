@@ -2,11 +2,7 @@
 """
 本地 LLM 调用封装。
 
-直接继承原 REKNOS 项目 utils.py 中 run_llm() 的写法与思路：
 通过 OpenAI 兼容接口访问本地 Ollama 服务来调用 Phi-3。
-区别：
-- 原版发生异常时无限重试（while f==0），这里改为有限次重试后抛出异常，
-  避免在离线 / 未启动 Ollama 的环境下卡死，便于单元测试用 mock 替换。
 """
 
 import time
@@ -25,7 +21,6 @@ def run_llm(prompt: str,
             max_retry: int = config.LLM_MAX_RETRY) -> str:
     """
     调用本地 Ollama 部署的 Phi-3。
-    与原版 run_llm 签名保持相似风格，方便熟悉原项目的人直接迁移调用方式。
 
     注意：openai 包在函数内部懒加载，这样只用 mock LLM 做离线结构测试
     （见 test_pipeline.py）时，不需要安装/联网即可运行。
@@ -54,7 +49,7 @@ def run_llm(prompt: str,
                 presence_penalty=0,
             )
             return response.choices[0].message.content
-        except Exception as e:  # noqa: BLE001 - 与原版一致，捕获所有异常后重试
+        except Exception as e:  # noqa: BLE001 - 捕获所有异常后重试
             last_err = e
             print(f"LLM Error: {e}, retrying ({attempt + 1}/{max_retry}) ...")
             time.sleep(1)

@@ -1,16 +1,11 @@
 # -*- coding: utf-8 -*-
 """
-超关系语义评分模块（对应模块接口文档 1. 中 selected_hyper_relations 字段）。
+超关系语义评分模块
 
 核心创新点：
 1. 将传统 KGQA 中逐 relation 搜索改为 super-relation 粒度检索；
 2. 使用语义评分保留多个潜在推理方向，扩大宏观搜索空间，降低错误路径导致的检索失败。
 
-直接继承原 REKNOS 项目 freebase_func.py 中
-extract_relation_prompt + clean_relations() 的“LLM 打分 -> 正则解析 -> 排序取 top-K”
-方法思想，只是把打分对象从具体 relation 换成了 super-relation（超关系），
-这正是论文 Reasoning of LLMs over KGs with Super-Relations 的核心概念，
-也是模块接口文档里“超关系语义评分”一步要做的事情。
 """
 
 import re
@@ -20,7 +15,7 @@ import config
 from prompt_list import build_hyper_relation_prompt
 from kg_store import KGStore
 
-# 复用原版 clean_relations 的正则风格： "{标签 (Score: 0.x)}"
+# "{标签 (Score: 0.x)}"
 _SCORE_PATTERN = re.compile(r"\{\s*(?P<label>[^{}()]+?)\s*\(Score:\s*(?P<score>[0-9.]+)\)\s*\}")
 
 
@@ -41,8 +36,7 @@ def _parse_scores(llm_output: str, candidate_labels: List[str]) -> Dict[str, flo
 def score_hyper_relations(question: str, kg: KGStore, llm_fn,
                            top_k: int = config.TOP_K_HYPER_RELATIONS) -> List[Dict]:
     """
-    对 KG 中全部超关系打分并取 top_k，返回：
-    [{"relation_id":..., "label":..., "score":...}, ...]，与接口文档字段一致。
+    对 KG 中全部超关系打分并取 top_k
     """
     candidates = kg.all_hyper_relations()
     if not candidates:
@@ -55,7 +49,6 @@ def score_hyper_relations(question: str, kg: KGStore, llm_fn,
     parsed = _parse_scores(llm_output, labels)
 
     # 若解析失败（例如本地小模型输出格式不稳定），退化为均匀打分，保证流程不中断，
-    # 这与原版 utils.clean_scores() 在解析失败时 "All entities are created equal" 的兜底思路一致。
     if not parsed:
         parsed = {label: 1.0 / len(labels) for label in labels}
 

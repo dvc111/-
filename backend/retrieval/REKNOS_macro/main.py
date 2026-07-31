@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-命令行入口。风格延续原 REKNOS 项目 main_freebase.py 的 argparse 用法。
+命令行入口。
 
 用法示例：
     # 需先在本地启动 Ollama 并拉取 phi3： ollama run phi3

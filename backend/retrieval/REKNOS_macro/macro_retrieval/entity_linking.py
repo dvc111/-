@@ -1,15 +1,11 @@
 # -*- coding: utf-8 -*-
 """
-实体链接模块（对应模块接口文档 1. 中 entity_linking / topic_entities 字段）。
+实体链接模块
 
 核心创新点：
 采用 LLM 提取实体 mention + 本地 KG 确定性匹配的混合策略，
 避免完全依赖 LLM 产生不可控实体 ID。
 
-延续原 REKNOS 项目的整体思路：先由 LLM 承担语言理解部分（这里是抽取问题中的
-实体提及），再用可控的规则/相似度计算做确定性的消歧和打分，
-而不是把“判断具体实体 id”这种确定性任务也丢给 LLM 自由发挥
-（原版对关系打分也是类似的“LLM 提议 + 规则/正则解析”组合方式）。
 
 流程：
 1. LLM 从问题中抽取候选 mention（prompt_list.ENTITY_MENTION_EXTRACT_PROMPT）
