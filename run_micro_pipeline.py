@@ -1,7 +1,5 @@
 import sys, json, os
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "backend"))
-
-
 import torch
 from retrieval.micro_rag import build_micro_evidence_subgraph, MicroRetriever
 from gnn.core.model import RGCNNodeScorer
@@ -55,7 +53,7 @@ def main():
         model.load_state_dict(state_dict, strict=False)
         print("micro_model.pth")
     else:
-        print("????????????????")
+        print("未找到 micro_model.pth")
     relation_id_map = {i: rid for i, rid in enumerate(sorted(rel_labels))} if rel_labels else None
 
     topic_ids = payload["topic_entities"]

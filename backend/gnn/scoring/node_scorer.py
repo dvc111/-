@@ -1,4 +1,3 @@
-"""加载模型 → 推理 → 节点概率向量。"""
 import torch
 from gnn.core.model import RGCNNodeScorer, RGCNNodeClassifier, run_inference
 from gnn.core.base_loader import GraphData

@@ -1,4 +1,3 @@
-"""宏观推理入口：特征 → 评分 → 排序 → 提路径。"""
 import sys; from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 import torch

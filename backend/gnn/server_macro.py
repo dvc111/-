@@ -13,6 +13,7 @@ from kg_store import KGStore
 from pipeline import macro_retrieval
 from gnn.core.model import RGCNNodeClassifier
 from gnn.macro_gnn.inference import run_macro_inference
+from gnn.macro_gnn.introspect import run_macro_introspection
 from gnn.macro_gnn.loader import assemble_macro_subgraph
 from gnn.core.encoder import BertTextEncoder
 FRONTEND = ROOT / "frontend"
@@ -75,7 +76,7 @@ class H(BaseHTTPRequestHandler):
         m = self.get_model()
         if m is None:
             m = RGCNNodeClassifier(in_dim=g.node_features.size(-1), hidden_dim=64, num_relations=g.num_relations)
-        return {"r":r,"g":g,"e":e,"l":l,"m":m,"tn":[self.kg.entity_label(t) for t in r["topic_entities"]],"hr":r["selected_hyper_relations"],"s":s,"rl":rl,"rm":rm}
+        return {"r":r,"g":g,"e":e,"l":l,"m":m,"tn":[self.kg.entity_label(t) for t in r["topic_entities"]],"hr":r["selected_hyper_relations"],"s":s,"rl":rl,"rm":rm,"t":t}
 
     def do_GET(self):
         # parse query string from path
@@ -95,8 +96,12 @@ class H(BaseHTTPRequestHandler):
                 try: qi = max(0, min(4, int(qp["q"]) - 1))
                 except: pass
             d = self.run_q(qi)
-            o = run_macro_inference(model=d["m"],graph_data=d["g"],topic_entity_ids=d["r"]["topic_entities"],entity_embeddings=d["e"],entity_labels=d["l"],relation_labels=d["rl"],relation_id_map=d["rm"],top_k=5,max_hops=3)
-            self.send_json({"question":d["r"]["question_text"],"topic_entities":d["tn"],"hyper_relations":d["hr"],"subgraph_size":{"nodes":len(d["s"]["nodes"]),"edges":len(d["s"]["triples"])},"candidates":o["candidate_answers"],"paths":o["reasoning_paths"]})
+            o = run_macro_inference(model=d["m"],graph_data=d["g"],topic_entity_ids=d["r"]["topic_entities"],entity_embeddings=d["e"],entity_labels=d["l"],relation_labels=d["rl"],relation_id_map=d["rm"],top_k=7,max_hops=3)
+            vis = run_macro_introspection(model=d["m"], graph_data=d["g"], triples=d["t"],
+                relation_id_map=d["rm"], entity_labels=d["l"], relation_labels=d["rl"],
+                topic_entity_ids=d["r"]["topic_entities"], text_dim=self.enc.dim,
+                question_embedding=self.enc.encode(d["r"]["question_text"]))
+            self.send_json({"question":d["r"]["question_text"],"topic_entities":d["tn"],"hyper_relations":d["hr"],"subgraph_size":{"nodes":len(d["s"]["nodes"]),"edges":len(d["s"]["triples"])},"candidates":o["candidate_answers"],"paths":o["reasoning_paths"],"gnn_visualization":vis})
             return
         if path_only in("/","/macro.html"):
             self.path = "/macro.html"
@@ -115,4 +120,6 @@ class H(BaseHTTPRequestHandler):
     def log_message(self,f,*a): print(f"[macro] {a[0]} {a[1]}")
 
 if __name__ == "__main__":
-    print("http://localhost:8001"); HTTPServer(("0.0.0.0",8001),H).serve_forever()
+    port = int(os.environ.get("MACRO_PORT", "8001"))
+    print(f"http://localhost:{port}")
+    HTTPServer(("0.0.0.0", port), H).serve_forever()

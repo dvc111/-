@@ -1,5 +1,3 @@
-"""双向 BFS 最短路径提取：从主题实体到候选答案，前后夹击搜索。"""
-
 from collections import deque
 
 

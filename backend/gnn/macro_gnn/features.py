@@ -1,4 +1,3 @@
-"""宏观特征：BERT + is_topic 标志位。"""
 import torch
 def build_macro_features(bert_embeddings, entity_ids, topic_entity_ids):
     N = bert_embeddings.size(0)

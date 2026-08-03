@@ -24,14 +24,6 @@ def main():
     in_dim = None
     max_rels = 0
 
-
-    # ── 逐个示例生成训练数据 ──
-    # 对每个示例:
-    #   1. 读取JSON → 得到子图(payload)
-    #   2. build_micro_evidence_subgraph() → 微观检索+DDE计算
-    #   3. assemble_micro_subgraph() → 三元组+DDE→GraphData
-    #   4. 标注正确答案(label=1.0), 其他节点label=0.0
-    #   5. 加入 train_data 列表
     for cfg in train_configs:
         with open(cfg["json"], encoding="utf-8") as f:
             payload = json.load(f)

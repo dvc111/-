@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
   <meta charset="UTF-8">
@@ -7,222 +7,753 @@
   <style>
     :root {
       --accent: #4f46e5;
+      --accent-2: #0ea5e9;
       --accent-soft: #eef2ff;
-      --text: #172033;
-      --muted: #687386;
-      --line: #e8ebf1;
+      --text: #1a2233;
+      --muted: #64748b;
+      --line: #e2e8f0;
       --surface: #ffffff;
-      --background: #f6f7fb;
+      --background: #f4f6fb;
       --danger: #b42318;
+      --success: #059669;
+      --shadow: 0 1px 3px rgba(15, 23, 42, .06), 0 4px 12px rgba(15, 23, 42, .05);
     }
 
-    * { box-sizing: border-box; }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
 
     body {
-      margin: 0;
       color: var(--text);
       background: var(--background);
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Microsoft YaHei", sans-serif;
+      min-height: 100vh;
     }
 
-    .header {
-      padding: 30px 20px 26px;
+    .topbar {
+      background: linear-gradient(120deg, #312e81, #4f46e5 55%, #0ea5e9);
+      padding: 18px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      box-shadow: 0 2px 10px rgba(79, 70, 229, .18);
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+
+    .topbar-left { display: flex; align-items: center; gap: 12px; min-width: 0; }
+    .logo {
+      width: 36px; height: 36px; flex-shrink: 0;
+      display: grid; place-items: center;
+      background: rgba(255,255,255,.16);
+      border: 1px solid rgba(255,255,255,.25);
+      border-radius: 10px;
       color: #fff;
-      text-align: center;
-      background: var(--accent);
+      font-size: 17px;
     }
+    .topbar h1 { color: #fff; font-size: 18px; font-weight: 650; white-space: nowrap; }
+    .topbar .subtitle { color: rgba(255,255,255,.78); font-size: 12px; margin-top: 2px; white-space: nowrap; }
 
-    .header h1 {
-      margin: 0;
-      font-size: 22px;
-      font-weight: 650;
+    .topbar-right { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+    .q-btn {
+      min-width: 40px; height: 34px; padding: 0 12px;
+      border: 1px solid rgba(255,255,255,.28);
+      border-radius: 8px;
+      background: rgba(255,255,255,.1);
+      color: #fff;
+      font-size: 13px; font-weight: 600;
+      cursor: pointer;
+      transition: all .15s ease;
     }
-
-    .header p {
-      margin: 8px 0 0;
-      color: rgba(255, 255, 255, .78);
-      font-size: 13px;
-    }
+    .q-btn:hover { background: rgba(255,255,255,.22); }
+    .q-btn.active { background: #fff; color: var(--accent); border-color: #fff; }
 
     .wrap {
-      width: min(680px, 100%);
+      width: min(760px, 100%);
       margin: 0 auto;
-      padding: 18px 16px 28px;
+      padding: 20px 16px 36px;
     }
 
-    .card {
-      margin-bottom: 14px;
-      padding: 20px;
+    .panel {
       background: var(--surface);
       border: 1px solid var(--line);
-      border-radius: 12px;
+      border-radius: 10px;
+      box-shadow: var(--shadow);
+      margin-bottom: 14px;
+      overflow: hidden;
     }
 
-    .card-title {
-      margin-bottom: 12px;
-      color: var(--muted);
-      font-size: 13px;
-      font-weight: 650;
+    .panel-head {
+      padding: 12px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      border-bottom: 1px solid var(--line);
     }
+
+    .panel-title {
+      display: flex; align-items: center; gap: 8px;
+      font-size: 13px; font-weight: 700;
+      color: var(--muted);
+      letter-spacing: .02em;
+    }
+
+    .panel-title .dot {
+      width: 8px; height: 8px; border-radius: 50%;
+      background: var(--accent);
+      flex-shrink: 0;
+    }
+
+    .badge {
+      padding: 3px 9px;
+      border-radius: 999px;
+      font-size: 11px; font-weight: 600;
+    }
+    .badge.accent { color: var(--accent); background: var(--accent-soft); }
+    .badge.success { color: var(--success); background: #ecfdf5; }
+
+    .panel-body { padding: 16px; }
 
     .question {
-      font-size: 17px;
+      font-size: 16px;
       font-weight: 600;
-      line-height: 1.6;
+      line-height: 1.7;
     }
 
-    .summary {
-      display: flex;
-      gap: 8px;
-      margin-top: 14px;
-      flex-wrap: wrap;
+    .macro-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
     }
-
-    .tag {
-      padding: 5px 9px;
-      color: var(--accent);
-      background: var(--accent-soft);
-      border-radius: 999px;
-      font-size: 12px;
+    .macro-item {
+      padding: 12px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fafbfe;
+      min-width: 0;
     }
-    .macro-line {
-      font-size: 14px;
-      line-height: 2;
-      color: var(--text);
+    .macro-item .label {
+      font-size: 11px;
+      color: var(--muted);
+      margin-bottom: 5px;
+      font-weight: 600;
+    }
+    .macro-item .value {
+      font-size: 13px;
+      font-weight: 600;
+      line-height: 1.55;
+      overflow-wrap: anywhere;
     }
 
     .candidate {
       display: grid;
-      grid-template-columns: minmax(90px, 130px) 1fr 48px;
+      grid-template-columns: 30px minmax(80px, 120px) 1fr 52px;
       gap: 12px;
       align-items: center;
-      padding: 11px 0;
+      padding: 10px 0;
       border-bottom: 1px solid var(--line);
     }
-
     .candidate:last-child { border-bottom: 0; }
-    .candidate-name { overflow-wrap: anywhere; font-size: 14px; font-weight: 600; }
+
+    .rank {
+      width: 24px; height: 24px;
+      display: grid; place-items: center;
+      border-radius: 50%;
+      background: #f1f5f9;
+      color: var(--muted);
+      font-size: 11px; font-weight: 700;
+      flex-shrink: 0;
+    }
+    .rank.top { background: var(--accent); color: #fff; }
+
+    .candidate-name { overflow-wrap: anywhere; font-size: 13px; font-weight: 650; }
 
     .bar-track {
-      height: 7px;
+      height: 8px;
       overflow: hidden;
-      background: #eceef4;
+      background: #eef1f6;
       border-radius: 999px;
     }
-
     .bar {
       height: 100%;
-      background: var(--accent);
+      background: linear-gradient(90deg, var(--accent), var(--accent-2));
       border-radius: inherit;
-      transition: width .4s ease;
+      transition: width .45s ease;
     }
 
-    .probability { color: var(--muted); font-size: 13px; text-align: right; }
+    .probability { color: var(--muted); font-size: 12px; text-align: right; font-weight: 650; }
 
-    .path { padding: 4px 0 13px; }
-    .path + .path { padding-top: 14px; border-top: 1px solid var(--line); }
-    .path:last-child { padding-bottom: 2px; }
+    .path { padding: 8px 0 14px; }
+    .path + .path { padding-top: 16px; border-top: 1px dashed var(--line); }
+
+    .path-head {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+
+    .path-index {
+      width: 22px; height: 22px;
+      display: grid; place-items: center;
+      border-radius: 6px;
+      background: var(--accent);
+      color: #fff;
+      font-size: 11px; font-weight: 700;
+      flex-shrink: 0;
+    }
 
     .path-answer {
-      margin-bottom: 8px;
-      color: var(--accent);
+      color: var(--text);
       font-size: 13px;
-      font-weight: 650;
+      font-weight: 700;
+      flex: 1;
+      min-width: 0;
+      overflow-wrap: anywhere;
     }
 
-    .path-content {
+    .path-score {
+      color: var(--muted);
+      font-size: 11px;
+      font-weight: 600;
+      flex-shrink: 0;
+    }
+
+    .path-flow {
+      position: relative;
       display: flex;
-      gap: 6px;
       align-items: center;
       flex-wrap: wrap;
+      gap: 4px;
       font-size: 13px;
-      line-height: 1.7;
+      line-height: 2;
+      padding-left: 10px;
+      border-left: 3px solid var(--line);
     }
 
-    .entity { font-weight: 600; }
-    .relation { color: var(--muted); }
-    .arrow { color: #adb3c0; }
+    .entity {
+      font-weight: 650;
+      color: var(--text);
+      background: var(--accent-soft);
+      border: 1px solid #dfe6fb;
+      padding: 3px 10px;
+      border-radius: 7px;
+      white-space: nowrap;
+    }
 
-    .empty,
-    .state {
-      padding: 24px 8px;
+    .entity.topic {
+      background: #eff6ff;
+      border-color: #bfdbfe;
+      color: #1d4ed8;
+    }
+
+    .entity.answer {
+      background: #ecfdf5;
+      border-color: #a7f3d0;
+      color: var(--success);
+      font-weight: 700;
+    }
+
+    .relation {
       color: var(--muted);
-      font-size: 14px;
+      font-size: 11px;
+      background: #f1f5f9;
+      border: 1px solid #e2e8f0;
+      padding: 3px 8px;
+      border-radius: 999px;
+      white-space: nowrap;
+    }
+
+    .arrow { color: #a5b0c0; font-size: 11px; }
+
+    .empty, .state {
+      padding: 30px 10px;
+      color: var(--muted);
+      font-size: 13px;
       text-align: center;
     }
-
     .error { color: var(--danger); }
 
     .spinner {
       display: block;
-      width: 26px;
-      height: 26px;
-      margin: 0 auto 10px;
-      border: 3px solid #e5e7f1;
+      width: 28px; height: 28px;
+      margin: 0 auto 12px;
+      border: 3px solid #e2e8f0;
       border-top-color: var(--accent);
       border-radius: 50%;
       animation: spin .7s linear infinite;
     }
 
-    .button {
-      width: 100%;
-      padding: 12px 16px;
-      color: #fff;
-      background: var(--accent);
-      border: 0;
-      border-radius: 9px;
-      font: inherit;
-      font-size: 14px;
-      font-weight: 650;
-      cursor: pointer;
+    .footer {
+      display: flex;
+      gap: 10px;
+      margin-top: 4px;
     }
 
-    .button:hover { background: #4338ca; }
-    .button:disabled { cursor: wait; opacity: .58; }
+    .button {
+      flex: 1;
+      padding: 11px 16px;
+      color: #fff;
+      background: linear-gradient(90deg, var(--accent), var(--accent-2));
+      border: 0;
+      border-radius: 8px;
+      font: inherit;
+      font-size: 13px;
+      font-weight: 650;
+      cursor: pointer;
+      transition: opacity .15s ease, transform .1s ease;
+    }
+    .button:hover { opacity: .9; }
+    .button:active { transform: translateY(1px); }
+    .button:disabled { cursor: wait; opacity: .55; }
+
+    .button.secondary {
+      background: #fff;
+      color: var(--text);
+      border: 1px solid var(--line);
+    }
 
     @keyframes spin { to { transform: rotate(360deg); } }
 
-    @media (max-width: 520px) {
-      .header { padding-top: 24px; }
-      .header h1 { font-size: 20px; }
-      .card { padding: 17px; }
-      .candidate { grid-template-columns: minmax(80px, 105px) 1fr 44px; gap: 8px; }
+    @media (max-width: 600px) {
+      .topbar { padding: 14px 16px; flex-direction: column; align-items: stretch; }
+      .topbar-right { justify-content: flex-start; }
+      .macro-grid { grid-template-columns: 1fr; }
+      .candidate { grid-template-columns: 26px minmax(72px, 96px) 1fr 46px; gap: 8px; }
+      .wrap { padding: 14px 12px 28px; }
+      .panel-body { padding: 14px; }
     }
 
     @media (prefers-reduced-motion: reduce) {
       .bar, .spinner { transition: none; animation: none; }
     }
+
+    .viz-tabs {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+
+    .viz-tab {
+      min-width: 64px;
+      height: 30px;
+      padding: 0 12px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fff;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 650;
+      cursor: pointer;
+    }
+    .viz-tab.active { background: var(--accent); border-color: var(--accent); color: #fff; }
+
+    .gnn-graph-wrap { margin-top: 4px; }
+    .gnn-svg {
+      display: block;
+      width: 100%;
+      height: auto;
+      background: #fbfcfe;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+    }
+    .graph-legend { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 10px; }
+    .legend-item { display: inline-flex; align-items: center; gap: 6px; color: var(--muted); font-size: 11px; }
+    .legend-line { width: 22px; height: 3px; border-radius: 2px; }
+    .legend-node { width: 10px; height: 10px; border-radius: 50%; border: 2px solid var(--line); }
+    .legend-node.topic { border-color: var(--accent); background: var(--accent); }
+    .legend-node.answer { border-color: var(--success); background: var(--success); }
+    .gnn-node { cursor: pointer; transition: opacity .15s ease; }
+    .gnn-node.selected circle { stroke: #111827; stroke-width: 2.5; }
+    .gnn-label { font-size: 11px; font-weight: 600; paint-order: stroke; stroke: #fff; stroke-width: 3px; }
+
+    .fusion-flow {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      margin-bottom: 16px;
+      padding: 14px 16px;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      background: linear-gradient(135deg, #f8faff, #fbfcfe);
+    }
+    .flow-sources { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; }
+    .flow-source {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 3px;
+      min-width: 108px;
+      padding: 10px 12px;
+      border: 1px solid #dfe6fb;
+      border-radius: 8px;
+      background: #fff;
+    }
+    .flow-icon {
+      width: 26px; height: 26px;
+      display: grid; place-items: center;
+      border-radius: 8px;
+      color: #fff;
+      font-size: 12px;
+      font-weight: 800;
+    }
+    .flow-source.semantic .flow-icon { background: linear-gradient(135deg, #6366f1, #8b5cf6); }
+    .flow-source.structure .flow-icon { background: linear-gradient(135deg, #0ea5e9, #06b6d4); }
+    .flow-source.attr .flow-icon { background: linear-gradient(135deg, #f59e0b, #f97316); }
+    .flow-name { color: var(--text); font-size: 12px; font-weight: 700; white-space: nowrap; }
+    .flow-dim { color: var(--muted); font-size: 10px; }
+    .flow-arrow { color: var(--accent); font-size: 16px; font-weight: 800; line-height: 1; }
+    .flow-center {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 9px 16px;
+      border-radius: 8px;
+      color: #fff;
+      font-size: 13px;
+      font-weight: 750;
+      background: linear-gradient(90deg, var(--accent), var(--accent-2));
+      box-shadow: 0 4px 12px rgba(79, 70, 229, .22);
+    }
+    .flow-center.rgcn { background: linear-gradient(90deg, #0f172a, #334155); box-shadow: 0 4px 12px rgba(15, 23, 42, .2); }
+
+    .feat-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+    }
+    .feat-card {
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      background: #fff;
+      overflow: hidden;
+      box-shadow: 0 1px 2px rgba(15, 23, 42, .04);
+    }
+    .feat-card-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 12px 14px;
+      border-bottom: 1px solid var(--line);
+      background: linear-gradient(120deg, #f8faff, #ffffff);
+    }
+    .feat-card-name { font-size: 14px; font-weight: 750; overflow-wrap: anywhere; }
+    .type-badge {
+      padding: 3px 8px;
+      border-radius: 999px;
+      font-size: 10px;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+    .type-badge.topic { background: var(--accent-soft); color: var(--accent); }
+    .type-badge.answer { background: #ecfdf5; color: var(--success); }
+    .feat-card-body { display: flex; flex-direction: column; gap: 10px; padding: 12px 14px; }
+    .feat-source {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 9px 10px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fafbfe;
+    }
+    .feat-source-icon {
+      width: 30px; height: 30px;
+      display: grid; place-items: center;
+      border-radius: 8px;
+      color: #fff;
+      font-size: 12px;
+      font-weight: 800;
+      flex-shrink: 0;
+    }
+    .feat-source.semantic .feat-source-icon { background: linear-gradient(135deg, #6366f1, #8b5cf6); }
+    .feat-source.structure .feat-source-icon { background: linear-gradient(135deg, #0ea5e9, #06b6d4); }
+    .feat-source.attr .feat-source-icon { background: linear-gradient(135deg, #f59e0b, #f97316); }
+    .feat-source-info { min-width: 0; flex: 1; display: flex; flex-direction: column; gap: 2px; }
+    .feat-source-label { color: var(--muted); font-size: 10px; font-weight: 600; }
+    .feat-source-value { color: var(--text); font-size: 12px; font-weight: 750; overflow-wrap: anywhere; }
+    .feat-source-dim { color: var(--muted); font-size: 10px; }
+    .importance {
+      padding: 9px 10px;
+      border: 1px solid rgba(5, 150, 105, .22);
+      border-radius: 8px;
+      background: linear-gradient(120deg, rgba(5, 150, 105, .08), rgba(14, 165, 233, .08));
+    }
+    .importance-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 6px;
+    }
+    .importance-label { color: var(--muted); font-size: 10px; font-weight: 650; }
+    .importance-value { color: var(--success); font-size: 12px; font-weight: 800; }
+    .importance-track { height: 6px; overflow: hidden; background: #eef1f6; border-radius: 999px; }
+    .importance-fill {
+      height: 100%;
+      border-radius: inherit;
+      background: linear-gradient(90deg, var(--success), var(--accent-2));
+      transition: width .4s ease;
+    }
+
+    .mp-controls { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 10px; }
+    .mp-play {
+      margin-left: auto;
+      height: 30px;
+      padding: 0 12px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fff;
+      color: var(--text);
+      font-size: 12px;
+      font-weight: 650;
+      cursor: pointer;
+    }
+    .mp-graph { position: relative; }
+    .mp-edge { transition: opacity .2s ease; }
+    .mp-particle { filter: drop-shadow(0 1px 2px rgba(15, 23, 42, .3)); }
+    .mp-detail { max-height: 340px; overflow-y: auto; margin-top: 12px; border-top: 1px solid var(--line); padding-top: 4px; }
+    .node-msg-row {
+      display: grid;
+      grid-template-columns: 150px minmax(0, 1fr) 130px;
+      gap: 12px;
+      align-items: center;
+      padding: 8px 0;
+      border-bottom: 1px dashed var(--line);
+    }
+    .node-msg-row:last-child { border-bottom: 0; }
+    .node-msg-name { overflow-wrap: anywhere; font-size: 12px; font-weight: 650; }
+    .msg-bars { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+    .msg-bar { display: grid; grid-template-columns: 86px 1fr 46px; gap: 8px; align-items: center; }
+    .msg-rel { color: var(--muted); font-size: 10px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .msg-track { height: 6px; overflow: hidden; background: #eef1f6; border-radius: 999px; }
+    .msg-fill { height: 100%; border-radius: inherit; }
+    .msg-count { color: var(--muted); font-size: 10px; text-align: right; }
+    .node-msg-stat { color: var(--muted); font-size: 10px; line-height: 1.7; text-align: right; white-space: pre-line; }
+
+    @media (max-width: 640px) {
+      .feat-grid { grid-template-columns: 1fr; }
+      .node-msg-row { grid-template-columns: 1fr; gap: 6px; }
+      .node-msg-stat { text-align: left; }
+    }
+
+    .mp-section {
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      background: #fff;
+      overflow: hidden;
+      margin-bottom: 14px;
+    }
+    .mp-section-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 11px 14px;
+      border-bottom: 1px solid var(--line);
+      background: linear-gradient(120deg, #f8faff, #ffffff);
+    }
+    .mp-section-title { color: var(--text); font-size: 13px; font-weight: 750; }
+    .mp-section-body { padding: 14px; }
+
+    .mp-input-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 10px;
+    }
+    .mp-stat {
+      padding: 12px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fafbfe;
+    }
+    .mp-stat-label { color: var(--muted); font-size: 10px; font-weight: 650; margin-bottom: 6px; }
+    .mp-stat-value { color: var(--text); font-size: 16px; font-weight: 850; }
+    .mp-stat-sub { color: var(--muted); font-size: 10px; margin-top: 4px; }
+
+    .mp-layer-grid {
+      display: grid;
+      grid-template-columns: minmax(240px, 1fr) minmax(260px, 1.2fr);
+      gap: 14px;
+      align-items: start;
+    }
+    .mp-flow-card {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 12px;
+      background: #fafbfe;
+    }
+    .mp-flow-title { color: var(--muted); font-size: 10px; font-weight: 700; margin-bottom: 10px; }
+    .mp-flow-steps { display: flex; flex-direction: column; align-items: center; gap: 5px; }
+    .mp-flow-row { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; }
+    .mp-flow-step {
+      padding: 8px 12px;
+      border: 1px solid #dfe6fb;
+      border-radius: 8px;
+      background: #fff;
+      color: var(--text);
+      font-size: 12px;
+      font-weight: 700;
+      text-align: center;
+    }
+    .mp-flow-step.hot {
+      background: linear-gradient(90deg, var(--accent), var(--accent-2));
+      border-color: transparent;
+      color: #fff;
+    }
+    .mp-flow-plus { color: var(--muted); font-size: 12px; font-weight: 800; align-self: center; }
+    .mp-flow-arrow { color: var(--accent); font-size: 15px; font-weight: 800; line-height: 1; }
+
+    .mp-chain { display: flex; flex-direction: column; align-items: center; gap: 6px; }
+    .mp-chain-node {
+      min-width: 160px;
+      padding: 10px 14px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fff;
+      text-align: center;
+      animation: mpNodeGlow 2.6s ease-in-out infinite;
+    }
+    .mp-chain-node.topic { border-color: var(--accent); background: var(--accent-soft); color: var(--accent); }
+    .mp-chain-node.mid { border-color: var(--accent-2); background: #eff6ff; color: #1d4ed8; }
+    .mp-chain-node.target { border-color: var(--success); background: #ecfdf5; color: var(--success); }
+    .mp-chain-node .name { font-size: 13px; font-weight: 800; }
+    .mp-chain-node .dim { font-size: 10px; color: var(--muted); margin-top: 3px; }
+    .mp-chain-edge { display: flex; align-items: center; gap: 6px; color: var(--muted); font-size: 11px; font-weight: 650; }
+    .mp-chain-edge .line { width: 26px; height: 2px; background: var(--accent); border-radius: 2px; }
+    .mp-chain-edge .dot {
+      width: 7px; height: 7px;
+      border-radius: 50%;
+      background: var(--accent);
+      animation: mpPulse 1.3s ease-in-out infinite;
+    }
+    .mp-chain-edge .rel { white-space: nowrap; }
+
+    .mp-stats { display: flex; flex-direction: column; gap: 10px; }
+    .mp-stat-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 10px 12px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fff;
+    }
+    .mp-stat-row .k { color: var(--muted); font-size: 11px; font-weight: 650; }
+    .mp-stat-row .v { color: var(--text); font-size: 12px; font-weight: 800; text-align: right; }
+
+    .mp-output-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+    }
+    .mp-output-card {
+      padding: 12px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fafbfe;
+    }
+    .mp-output-name { font-size: 13px; font-weight: 800; margin-bottom: 6px; }
+    .mp-output-dim { color: var(--muted); font-size: 11px; }
+    .mp-output-score { margin-top: 8px; height: 5px; overflow: hidden; background: #eef1f6; border-radius: 999px; }
+    .mp-output-score i { display: block; height: 100%; background: linear-gradient(90deg, var(--accent), var(--accent-2)); border-radius: inherit; }
+    .mp-connector {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      margin-top: 12px;
+      padding: 10px 14px;
+      border-radius: 8px;
+      background: linear-gradient(90deg, #0f172a, #334155);
+      color: #fff;
+      font-size: 12px;
+      font-weight: 750;
+    }
+
+    @keyframes mpPulse {
+      0%, 100% { transform: scale(1); opacity: .45; }
+      50% { transform: scale(1.5); opacity: 1; }
+    }
+    @keyframes mpNodeGlow {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(79, 70, 229, 0); }
+      50% { box-shadow: 0 0 0 4px rgba(79, 70, 229, .10); }
+    }
+
+    @media (max-width: 700px) {
+      .mp-input-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .mp-layer-grid { grid-template-columns: 1fr; }
+      .mp-output-grid { grid-template-columns: 1fr; }
+    }
   </style>
 </head>
 <body>
-  <header class="header">
-    <h1>宏观检索与 GNN 推理</h1>
-    <p>超关系语义规划 · 宏观子图裁剪 · R-GCN 节点评分</p>
+  <header class="topbar">
+    <div class="topbar-left">
+      <div class="logo">G</div>
+      <div>
+        <h1>宏观检索与 GNN 推理</h1>
+        <div class="subtitle">超关系语义规划 · 宏观子图裁剪 · R-GCN 节点评分</div>
+      </div>
+    </div>
+    <div class="topbar-right">
+      <button class="q-btn" data-q="1">Q1</button>
+      <button class="q-btn" data-q="2">Q2</button>
+      <button class="q-btn" data-q="3">Q3</button>
+      <button class="q-btn" data-q="4">Q4</button>
+      <button class="q-btn" data-q="5">Q5</button>
+    </div>
   </header>
 
   <main class="wrap">
-    <section class="card" aria-labelledby="question-title">
-      <div class="card-title" id="question-title">用户问题</div>
-      <div class="question" id="question-text">正在加载…</div>
-      <div class="summary" id="summary" hidden></div>
+    <section class="panel">
+      <div class="panel-head">
+        <div class="panel-title"><span class="dot"></span>用户问题</div>
+        <span class="badge accent" id="q-badge">示例问题</span>
+      </div>
+      <div class="panel-body">
+        <div class="question" id="question-text">正在加载…</div>
+      </div>
     </section>
 
-    <section class="card" id="macro-info" hidden>
-      <div class="card-title">宏观信息</div>
-      <div id="macro-summary" style="line-height:2;font-size:14px"></div>
+    <section class="panel" id="macro-panel" hidden>
+      <div class="panel-head">
+        <div class="panel-title"><span class="dot"></span>宏观信息</div>
+        <span class="badge success">检索完成</span>
+      </div>
+      <div class="panel-body">
+        <div class="macro-grid" id="macro-grid"></div>
+      </div>
     </section>
 
     <div id="result" aria-live="polite"></div>
-    <button class="button" id="rerun-button" type="button">重新推理</button>
+
+    <div class="footer">
+      <button class="button secondary" id="copy-button" type="button">复制结果</button>
+      <button class="button" id="rerun-button" type="button">重新推理</button>
+    </div>
   </main>
 
   <script>
     const questionText = document.getElementById("question-text");
-    const summary = document.getElementById("summary");
-    const macroSummary = document.getElementById("macro-summary");
-    const macroInfo = document.getElementById("macro-info");
+    const macroPanel = document.getElementById("macro-panel");
+    const macroGrid = document.getElementById("macro-grid");
     const result = document.getElementById("result");
     const rerunButton = document.getElementById("rerun-button");
+    const copyButton = document.getElementById("copy-button");
+    const qBadge = document.getElementById("q-badge");
+
+    const QUESTION_NAMES = {
+      1: "药物相互作用风险",
+      2: "阿司匹林副作用",
+      3: "布洛芬副作用",
+      4: "阿司匹林分类",
+      5: "华法林相互作用",
+    };
 
     function element(tag, className, text) {
       const node = document.createElement(tag);
@@ -231,96 +762,778 @@
       return node;
     }
 
+    function setActiveQuestion(q) {
+      document.querySelectorAll(".q-btn").forEach((btn) => {
+        btn.classList.toggle("active", btn.dataset.q === String(q));
+      });
+      if (QUESTION_NAMES[q]) qBadge.textContent = QUESTION_NAMES[q];
+    }
+
     function showLoading() {
-      const card = element("div", "card state");
-      card.append(element("span", "spinner"), document.createTextNode("正在运行推理…"));
-      result.replaceChildren(card);
+      const panel = element("div", "panel");
+      const body = element("div", "panel-body state");
+      body.append(element("span", "spinner"), document.createTextNode("正在运行推理…"));
+      panel.append(body);
+      result.replaceChildren(panel);
     }
 
     function showError(message) {
-      const card = element("div", "card state error", `请求失败：${message}`);
-      result.replaceChildren(card);
+      const panel = element("div", "panel");
+      const body = element("div", "panel-body state error", `请求失败：${message}`);
+      panel.append(body);
+      result.replaceChildren(panel);
     }
 
-    function renderSummary(candidateCount, pathCount) {
-      summary.replaceChildren(
-        element("span", "tag", `${candidateCount} 个候选答案`),
-        element("span", "tag", `${pathCount} 条推理路径`)
-      );
-      summary.hidden = false;
+    function renderMacroInfo(data) {
+      if (!data.hyper_relations && !data.subgraph_size && !data.topic_entities) return;
+
+      const items = [
+        ["超关系", (data.hyper_relations || []).map((x) => x.label + " (" + x.score + ")").join("，") || "—"],
+        ["子图规模", (data.subgraph_size?.nodes || "?") + " 节点 / " + (data.subgraph_size?.edges || "?") + " 边"],
+        ["主题实体", (data.topic_entities || []).join("，") || "—"],
+      ];
+
+      macroGrid.replaceChildren();
+      items.forEach(([label, value]) => {
+        const item = element("div", "macro-item");
+        item.append(element("div", "label", label), element("div", "value", value));
+        macroGrid.append(item);
+      });
+      macroPanel.hidden = false;
     }
 
     function renderCandidates(candidates) {
-      const card = element("section", "card");
-      card.append(element("div", "card-title", "候选答案"));
+      const panel = element("section", "panel");
+      const head = element("div", "panel-head");
+      head.append(element("div", "panel-title", "候选答案"), element("span", "badge accent", `${candidates.length} 个`));
+      panel.append(head);
+      const body = element("div", "panel-body");
 
       if (!candidates.length) {
-        card.append(element("div", "empty", "暂未找到候选答案"));
-        return card;
+        body.append(element("div", "empty", "暂未找到候选答案"));
+        panel.append(body);
+        return panel;
       }
 
-      candidates.forEach((candidate) => {
+      candidates.forEach((candidate, index) => {
         const probability = Math.min(1, Math.max(0, Number(candidate.prob) || 0));
         const row = element("div", "candidate");
+        const rank = element("span", "rank" + (index < 3 ? " top" : ""), String(index + 1));
         const track = element("div", "bar-track");
         const bar = element("div", "bar");
         bar.style.width = `${(probability * 100).toFixed(1)}%`;
         track.append(bar);
         row.append(
+          rank,
           element("div", "candidate-name", candidate.label || candidate.entity_id || "未知实体"),
           track,
           element("div", "probability", `${(probability * 100).toFixed(1)}%`)
         );
-        card.append(row);
+        body.append(row);
       });
 
-      return card;
+      panel.append(body);
+      return panel;
     }
 
-    function renderPathNodes(container, nodes) {
+    function renderPathNodes(container, nodes, topicIds, answerId) {
+      const topicSet = new Set(topicIds || []);
       nodes.forEach((node, index) => {
         if (index > 0) container.append(element("span", "arrow", "→"));
         if (node.entity_id) {
-          container.append(element("span", "entity", node.label || node.entity_id));
+          let cls = "entity";
+          if (topicSet.has(node.entity_id)) cls += " topic";
+          if (node.entity_id === answerId) cls += " answer";
+          container.append(element("span", cls, node.label || node.entity_id));
         } else if (node.relation_id) {
           container.append(element("span", "relation", node.label || node.relation_id));
         }
       });
     }
 
-    function renderPaths(paths) {
-      const card = element("section", "card");
-      card.append(element("div", "card-title", "推理路径"));
+    function renderPaths(paths, topicIds) {
+      const panel = element("section", "panel");
+      const head = element("div", "panel-head");
+      head.append(element("div", "panel-title", "推理路径"), element("span", "badge accent", `${paths.length} 条`));
+      panel.append(head);
+      const body = element("div", "panel-body");
 
       if (!paths.length) {
-        card.append(element("div", "empty", "暂未生成可解释路径"));
-        return card;
+        body.append(element("div", "empty", "暂未生成可解释路径"));
+        panel.append(body);
+        return panel;
       }
 
       paths.forEach((path, index) => {
         const nodes = Array.isArray(path.path) ? path.path : [];
-        const answer = nodes.find((node) => node.entity_id === path.answer_entity_id);
+        const answerId = path.answer_entity_id;
+        const answer = nodes.find((node) => node.entity_id === answerId);
         const item = element("div", "path");
-        item.append(element("div", "path-answer", `${index + 1}. ${answer?.label || path.answer_entity_id || "候选答案"}`));
-        const content = element("div", "path-content");
-        renderPathNodes(content, nodes);
-        item.append(content);
-        card.append(item);
+
+        const headRow = element("div", "path-head");
+        headRow.append(element("span", "path-index", String(index + 1)));
+        headRow.append(element("span", "path-answer", answer?.label || answerId || "候选答案"));
+        const score = Number(path.path_score) || 0;
+        if (score > 0) headRow.append(element("span", "path-score", `得分 ${score.toFixed(3)}`));
+        item.append(headRow);
+
+        const flow = element("div", "path-flow");
+        renderPathNodes(flow, nodes, topicIds, answerId);
+        item.append(flow);
+        body.append(item);
       });
 
+      panel.append(body);
+      return panel;
+    }
+
+    const REL_COLORS = ["#4f46e5", "#0ea5e9", "#f59e0b", "#059669", "#dc2626", "#8b5cf6", "#14b8a6", "#f43f5e", "#64748b"];
+    let markerCounter = 0;
+
+    function relationColor(relationType) {
+      return REL_COLORS[Number(relationType ?? 0) % REL_COLORS.length] || REL_COLORS[0];
+    }
+
+    function svgElement(tag, attrs = {}, text) {
+      const node = document.createElementNS("http://www.w3.org/2000/svg", tag);
+      Object.entries(attrs).forEach(([key, value]) => {
+        if (value !== undefined && value !== null) node.setAttribute(key, value);
+      });
+      if (text !== undefined) node.textContent = text;
+      return node;
+    }
+
+    function computeGraphLayout(nodeIds, width = 760, height = 420) {
+      const cx = width / 2;
+      const cy = height / 2;
+      const maxRadius = Math.min(width / 2 - 64, height / 2 - 64);
+      const radius = Math.min(maxRadius, Math.max(110, 90 + nodeIds.length * 13));
+      const start = -Math.PI / 2;
+      const step = (2 * Math.PI) / Math.max(1, nodeIds.length);
+      const positions = new Map();
+      nodeIds.forEach((id, index) => {
+        const angle = start + index * step;
+        positions.set(id, {
+          x: cx + radius * Math.cos(angle),
+          y: cy + radius * Math.sin(angle),
+        });
+      });
+      return positions;
+    }
+
+    function renderGraphSvg(container, graph, answerIds, opts = {}) {
+      const width = opts.width || 760;
+      const height = opts.height || 420;
+      const topicIds = new Set((graph.nodes || []).filter((n) => n.is_topic).map((n) => n.entity_id));
+      const answerSet = new Set(answerIds || []);
+      const ordered = [...(graph.nodes || [])].sort((a, b) => Number(b.is_topic || 0) - Number(a.is_topic || 0));
+      const positions = computeGraphLayout(ordered.map((n) => n.entity_id), width, height);
+      const svg = svgElement("svg", { viewBox: `0 0 ${width} ${height}`, class: "gnn-svg", role: "img" });
+      const defs = svgElement("defs");
+      const markerIds = new Map();
+      [...new Set((graph.edges || []).map((e) => e.relation_type ?? 0))].forEach((rt) => {
+        const markerId = `gnn-arrow-${++markerCounter}`;
+        markerIds.set(rt, markerId);
+        const marker = svgElement("marker", {
+          id: markerId,
+          viewBox: "0 0 10 10",
+          refX: 9,
+          refY: 5,
+          markerWidth: 6,
+          markerHeight: 6,
+          orient: "auto-start-reverse",
+        });
+        marker.append(svgElement("path", { d: "M 0 0 L 10 5 L 0 10 z", fill: relationColor(rt) }));
+        defs.append(marker);
+      });
+      svg.append(defs);
+
+      const edgeElements = new Map();
+      (graph.edges || []).forEach((edge) => {
+        const from = positions.get(edge.source);
+        const to = positions.get(edge.target);
+        if (!from || !to) return;
+        const rt = edge.relation_type ?? 0;
+        const dx = to.x - from.x;
+        const dy = to.y - from.y;
+        const dist = Math.hypot(dx, dy) || 1;
+        const gap = 16;
+        const line = svgElement("line", {
+          x1: from.x + (dx / dist) * gap,
+          y1: from.y + (dy / dist) * gap,
+          x2: to.x - (dx / dist) * gap,
+          y2: to.y - (dy / dist) * gap,
+          stroke: relationColor(rt),
+          "stroke-width": 1.6,
+          "stroke-opacity": opts.faded ? 0.22 : 0.7,
+          "marker-end": `url(#${markerIds.get(rt)})`,
+        });
+        svg.append(line);
+        edgeElements.set(`${edge.source}|${edge.target}|${rt}`, line);
+      });
+
+      const nodeElements = new Map();
+      (graph.nodes || []).forEach((node) => {
+        const pos = positions.get(node.entity_id);
+        if (!pos) return;
+        const isTopic = topicIds.has(node.entity_id);
+        const isAnswer = answerSet.has(node.entity_id);
+        const g = svgElement("g", { class: "gnn-node" + (isAnswer ? " answer" : "") });
+        g.append(svgElement("circle", {
+          cx: pos.x,
+          cy: pos.y,
+          r: isTopic ? 17 : 14,
+          fill: isAnswer ? "#059669" : isTopic ? "var(--accent)" : "#e2e8f0",
+          stroke: isAnswer ? "#047857" : isTopic ? "var(--accent)" : "#94a3b8",
+          "stroke-width": isTopic || isAnswer ? 2 : 1.5,
+        }));
+        const dx = pos.x - width / 2;
+        const dy = pos.y - height / 2;
+        const lx = Math.min(width - 8, Math.max(8, pos.x + Math.sign(dx || 1) * 28));
+        const ly = Math.min(height - 8, Math.max(8, pos.y + Math.sign(dy || 1) * 22));
+        g.append(svgElement("text", {
+          x: lx,
+          y: ly,
+          class: "gnn-label",
+          "text-anchor": Math.abs(dx) < 26 ? "middle" : dx < 0 ? "end" : "start",
+        }, node.label || node.entity_id));
+        g.style.cursor = "pointer";
+        g.addEventListener("click", () => {
+          document.querySelectorAll(".gnn-node.selected").forEach((el) => el.classList.remove("selected"));
+          g.classList.add("selected");
+          if (opts.onNodeClick) opts.onNodeClick(node.entity_id);
+        });
+        svg.append(g);
+        nodeElements.set(node.entity_id, g);
+      });
+
+      container.replaceChildren(svg);
+      return { svg, positions, nodeElements, edgeElements };
+    }
+
+    function graphLegend(graph) {
+      const legend = element("div", "graph-legend");
+      const relTypes = [...new Set((graph.edges || []).map((e) => e.relation_type ?? 0))];
+      relTypes.forEach((rt) => {
+        const edge = (graph.edges || []).find((e) => (e.relation_type ?? 0) === rt);
+        const item = element("span", "legend-item");
+        item.append(element("span", "legend-line"));
+        item.lastChild.style.background = relationColor(rt);
+        item.append(document.createTextNode(edge?.label || edge?.relation_id || `R${rt}`));
+        legend.append(item);
+      });
+      const topicItem = element("span", "legend-item");
+      topicItem.append(element("span", "legend-node topic"), document.createTextNode("主题实体"));
+      const answerItem = element("span", "legend-item");
+      answerItem.append(element("span", "legend-node answer"), document.createTextNode("候选答案"));
+      legend.append(topicItem, answerItem);
+      return legend;
+    }
+
+    function renderGnnSubgraph(viz, answerIds) {
+      const panel = element("section", "panel");
+      const head = element("div", "panel-head");
+      head.append(element("div", "panel-title", "GNN 输入子图"), element("span", "badge accent", `${viz.nodes.length} 节点 / ${viz.edges.length} 边`));
+      panel.append(head);
+      const body = element("div", "panel-body");
+      const wrap = element("div", "gnn-graph-wrap");
+      renderGraphSvg(wrap, viz, answerIds, {
+        onNodeClick: (entityId) => {
+          const row = document.querySelector(`.feat-card[data-node-id="${entityId}"]`);
+          if (!row) return;
+          row.scrollIntoView({ behavior: "smooth", block: "center" });
+          row.style.boxShadow = "0 0 0 2px var(--accent)";
+          setTimeout(() => { row.style.boxShadow = ""; }, 1200);
+        },
+      });
+      wrap.append(graphLegend(viz));
+      body.append(wrap);
+      panel.append(body);
+      return panel;
+    }
+
+    function renderFusionFlow(spec) {
+      const flow = element("div", "fusion-flow");
+      const sourcesRow = element("div", "flow-sources");
+      const sources = [
+        { cls: "semantic", icon: "语", name: "BERT 语义表示", dim: `${spec.text_dim ?? 128} 维` },
+        { cls: "structure", icon: "图", name: "图结构拓扑", dim: "邻接信息" },
+        { cls: "attr", icon: "标", name: "节点属性", dim: "is_topic" },
+      ];
+      sources.forEach((source) => {
+        const box = element("div", "flow-source " + source.cls);
+        box.append(
+          element("span", "flow-icon", source.icon),
+          element("span", "flow-name", source.name),
+          element("span", "flow-dim", source.dim)
+        );
+        sourcesRow.append(box);
+      });
+      flow.append(sourcesRow);
+      flow.append(element("span", "flow-arrow", "↓"));
+      flow.append(element("div", "flow-center", `${spec.input_dim ?? 129} 维节点表示`));
+      flow.append(element("span", "flow-arrow", "↓"));
+      flow.append(element("div", "flow-center rgcn", "输入 R-GCN"));
+      return flow;
+    }
+
+    function renderFeatureFusion(viz, answerIds) {
+      const spec = viz.feature_spec || {};
+      const answerSet = new Set(answerIds || []);
+      const panel = element("section", "panel");
+      const head = element("div", "panel-head");
+      head.append(element("div", "panel-title", "节点多源特征融合"), element("span", "badge accent", `最终输入 ${spec.input_dim ?? "?"} 维`));
+      panel.append(head);
+      const body = element("div", "panel-body");
+      body.append(renderFusionFlow(spec));
+
+      const grid = element("div", "feat-grid");
+      (viz.nodes || []).forEach((node) => {
+        const card = element("div", "feat-card");
+        card.dataset.nodeId = node.entity_id;
+        const isAnswer = answerSet.has(node.entity_id);
+        const headBox = element("div", "feat-card-head");
+        headBox.append(element("div", "feat-card-name", node.label || node.entity_id));
+        if (node.is_topic) headBox.append(element("span", "type-badge topic", "主题实体"));
+        else if (isAnswer) headBox.append(element("span", "type-badge answer", "候选答案"));
+        card.append(headBox);
+
+        const cardBody = element("div", "feat-card-body");
+
+        const semantic = element("div", "feat-source semantic");
+        const semanticInfo = element("div", "feat-source-info");
+        semanticInfo.append(
+          element("div", "feat-source-label", "语义特征 · BERT 语义表示"),
+          element("div", "feat-source-value", `相似度 score ${node.semantic_score?.toFixed(3) ?? "—"}`),
+          element("div", "feat-source-dim", `${node.text_dim ?? spec.text_dim ?? 128} 维`)
+        );
+        semantic.append(element("span", "feat-source-icon", "语"), semanticInfo);
+
+        const structure = element("div", "feat-source structure");
+        const structureInfo = element("div", "feat-source-info");
+        structureInfo.append(
+          element("div", "feat-source-label", "结构特征 · 图结构拓扑"),
+          element("div", "feat-source-value", `邻居 ${node.neighbor_count ?? 0} · 关联边 ${node.edge_count ?? 0}`),
+          element("div", "feat-source-dim", "邻接边信息 · R-GCN 传播")
+        );
+        structure.append(element("span", "feat-source-icon", "图"), structureInfo);
+
+        const attr = element("div", "feat-source attr");
+        const attrInfo = element("div", "feat-source-info");
+        attrInfo.append(
+          element("div", "feat-source-label", "节点属性"),
+          element("div", "feat-source-value", `is_topic = ${node.is_topic ? 1 : 0}`),
+          element("div", "feat-source-dim", "1 维标记")
+        );
+        attr.append(element("span", "feat-source-icon", "标"), attrInfo);
+
+        const importanceValue = Math.max(0, Math.min(1, Number(node.importance) || 0));
+        const importance = element("div", "importance");
+        const importanceHead = element("div", "importance-head");
+        importanceHead.append(
+          element("div", "importance-label", "GNN 节点重要性"),
+          element("div", "importance-value", `${(importanceValue * 100).toFixed(1)}%`)
+        );
+        const importanceTrack = element("div", "importance-track");
+        const importanceFill = element("div", "importance-fill");
+        importanceFill.style.width = `${(importanceValue * 100).toFixed(1)}%`;
+        importanceTrack.append(importanceFill);
+        importance.append(importanceHead, importanceTrack);
+
+        cardBody.append(semantic, structure, attr, importance);
+        card.append(cardBody);
+        grid.append(card);
+      });
+      body.append(grid);
+      panel.append(body);
+      return panel;
+    }
+
+    function renderMessageBars(state, maxNorm) {
+      const bars = element("div", "msg-bars");
+      (state.incoming || []).forEach((msg) => {
+        const bar = element("div", "msg-bar");
+        const track = element("div", "msg-track");
+        const fill = element("div", "msg-fill");
+        fill.style.width = `${Math.max(2, Math.min(100, (msg.norm / maxNorm) * 100))}%`;
+        fill.style.background = "var(--accent)";
+        track.append(fill);
+        bar.append(element("span", "msg-rel", msg.label || msg.relation_id), track, element("span", "msg-count", `${msg.count} 条`));
+        bars.append(bar);
+      });
+      if (!(state.incoming || []).length) bars.append(element("div", "msg-rel", "无邻接消息"));
+      return bars;
+    }
+
+    function renderMessagePassing(viz, answerIds) {
+      const panel = element("section", "panel");
+      const layers = viz.layers || [];
+      const head = element("div", "panel-head");
+      head.append(element("div", "panel-title", "R-GCN 消息传播"), element("span", "badge accent", `${layers.length} 层`));
+      panel.append(head);
+      const body = element("div", "panel-body");
+
+      const controls = element("div", "mp-controls");
+      const tabs = element("div", "viz-tabs");
+      layers.forEach((layer, index) => {
+        const tab = element("button", "viz-tab" + (index === 0 ? " active" : ""), `层 ${index + 1}`);
+        tab.type = "button";
+        tab.addEventListener("click", () => {
+          stopPlayback();
+          setLayer(index);
+        });
+        tabs.append(tab);
+      });
+      const playButton = element("button", "mp-play", "播放传播动画");
+      playButton.type = "button";
+      controls.append(tabs, playButton);
+      const graphBox = element("div", "mp-graph");
+      const detail = element("div", "mp-detail");
+      body.append(controls, graphBox, detail);
+
+      let playbackTimer = null;
+      const animations = [];
+
+      function clearAnimations() {
+        animations.splice(0).forEach((animation) => animation.cancel && animation.cancel());
+      }
+
+      function stopPlayback() {
+        if (playbackTimer) { clearTimeout(playbackTimer); playbackTimer = null; }
+        playButton.textContent = "播放传播动画";
+      }
+
+      function setLayer(index) {
+        if (!layers[index]) return;
+        clearAnimations();
+        tabs.querySelectorAll(".viz-tab").forEach((tab, i) => tab.classList.toggle("active", i === index));
+        const layer = layers[index];
+        const base = renderGraphSvg(graphBox, viz, answerIds, {
+          faded: true,
+          onNodeClick: (entityId) => {
+            const row = detail.querySelector(`.node-msg-row[data-node-id="${entityId}"]`);
+            if (!row) return;
+            row.scrollIntoView({ behavior: "smooth", block: "nearest" });
+            row.style.boxShadow = "0 0 0 2px var(--accent)";
+            setTimeout(() => { row.style.boxShadow = ""; }, 1200);
+          },
+        });
+        const overlay = svgElement("g", { class: "mp-overlay" });
+        layer.edge_messages.forEach((msg) => {
+          const from = base.positions.get(msg.source);
+          const to = base.positions.get(msg.target);
+          if (!from || !to) return;
+          const rt = msg.relation_type ?? 0;
+          const color = relationColor(rt);
+          const normalized = Math.max(0, Math.min(1, msg.normalized || 0));
+          overlay.append(svgElement("line", {
+            x1: from.x,
+            y1: from.y,
+            x2: to.x,
+            y2: to.y,
+            stroke: color,
+            "stroke-width": (1 + normalized * 5).toFixed(2),
+            "stroke-opacity": (0.25 + normalized * 0.75).toFixed(2),
+            class: "mp-edge",
+          }));
+          const particle = svgElement("circle", {
+            cx: from.x,
+            cy: from.y,
+            r: 3 + normalized * 2,
+            fill: color,
+            class: "mp-particle",
+          });
+          const dx = to.x - from.x;
+          const dy = to.y - from.y;
+          const animation = particle.animate(
+            [
+              { transform: "translate(0px, 0px)" },
+              { transform: `translate(${dx.toFixed(1)}px, ${dy.toFixed(1)}px)` },
+            ],
+            { duration: 850 + Math.random() * 600, delay: Math.random() * 350, iterations: Infinity, easing: "ease-in-out" }
+          );
+          animations.push(animation);
+          overlay.append(particle);
+        });
+        base.svg.append(overlay);
+
+        const maxNodeNorm = Math.max(1e-9, ...layer.node_states.map((s) => (s.incoming || []).reduce((sum, m) => sum + m.norm, 0)));
+        const sortedStates = [...layer.node_states].sort((a, b) => {
+          const aSum = (a.incoming || []).reduce((sum, m) => sum + m.norm, 0);
+          const bSum = (b.incoming || []).reduce((sum, m) => sum + m.norm, 0);
+          return bSum - aSum;
+        });
+        const detailRows = sortedStates.map((state) => {
+          const row = element("div", "node-msg-row");
+          row.dataset.nodeId = state.entity_id;
+          row.append(
+            element("div", "node-msg-name", state.label || state.entity_id),
+            renderMessageBars(state, maxNodeNorm),
+            element("div", "node-msg-stat",
+              `Δ ${state.delta?.toFixed(3) ?? "—"} · ‖h‖ ${state.embedding_norm?.toFixed(3) ?? "—"} · 自环 ${state.self_loop_norm?.toFixed(3) ?? "—"}`)
+          );
+          return row;
+        });
+        detail.replaceChildren(...detailRows);
+      }
+
+      function playThrough() {
+        if (!layers.length) return;
+        stopPlayback();
+        let index = 0;
+        setLayer(0);
+        playButton.textContent = "播放中…";
+        const step = () => {
+          index += 1;
+          if (index >= layers.length) {
+            playButton.textContent = "播放传播动画";
+            return;
+          }
+          setLayer(index);
+          playbackTimer = setTimeout(step, 1900);
+        };
+        playbackTimer = setTimeout(step, 1900);
+      }
+
+      playButton.addEventListener("click", () => {
+        if (playbackTimer) { stopPlayback(); return; }
+        playThrough();
+      });
+
+      if (layers.length) setLayer(0);
+      return panel;
+    }
+
+    function mpSection(title, badge) {
+      const section = element("section", "mp-section");
+      const head = element("div", "mp-section-head");
+      head.append(element("div", "mp-section-title", title), element("span", "badge accent", badge));
+      const body = element("div", "mp-section-body");
+      section.append(head, body);
+      return { section, body };
+    }
+
+    function mpStatCard(label, value, sub) {
+      const card = element("div", "mp-stat");
+      card.append(element("div", "mp-stat-label", label), element("div", "mp-stat-value", String(value ?? "—")));
+      if (sub) card.append(element("div", "mp-stat-sub", sub));
       return card;
+    }
+
+    function mpStatRow(label, value) {
+      const row = element("div", "mp-stat-row");
+      row.append(element("div", "k", label), element("div", "v", String(value ?? "—")));
+      return row;
+    }
+
+    function mpArrow() {
+      return element("div", "mp-flow-arrow", "↓");
+    }
+
+    function mpFlowRow(items) {
+      const row = element("div", "mp-flow-row");
+      items.forEach((text, index) => {
+        if (index > 0) row.append(element("span", "mp-flow-plus", "+"));
+        row.append(element("div", "mp-flow-step", text));
+      });
+      return row;
+    }
+
+    function renderMiniChain(nodes, rels) {
+      const chain = element("div", "mp-chain");
+      nodes.forEach((node, index) => {
+        const box = element("div", "mp-chain-node " + (node.cls || ""));
+        box.append(element("div", "name", node.label));
+        if (node.dim) box.append(element("div", "dim", node.dim));
+        chain.append(box);
+        if (index < rels.length) {
+          const edge = element("div", "mp-chain-edge");
+          edge.append(
+            element("span", "line"),
+            element("span", "dot"),
+            element("span", "rel", rels[index]),
+            element("span", "dot"),
+            element("span", "line")
+          );
+          chain.append(edge);
+        }
+      });
+      return chain;
+    }
+
+    function mpNodeLabels(viz) {
+      const map = {};
+      (viz.nodes || []).forEach((node) => { map[node.entity_id] = node.label || node.entity_id; });
+      return map;
+    }
+
+    function mpRelationLabels(viz) {
+      const map = {};
+      (viz.edges || []).forEach((edge) => {
+        if (!(edge.relation_id in map)) map[edge.relation_id] = edge.label || edge.relation_id;
+      });
+      return map;
+    }
+
+    function buildLayerChain(viz, layer, hop) {
+      const labels = mpNodeLabels(viz);
+      const rels = mpRelationLabels(viz);
+      if (hop === 1) {
+        const msg = (layer?.edge_messages || []).find((m) => labels[m.source] && labels[m.target]);
+        if (!msg) return null;
+        return renderMiniChain(
+          [
+            { label: labels[msg.source] || msg.source, cls: "topic" },
+            { label: labels[msg.target] || msg.target, cls: "target", dim: "接收邻居消息" },
+          ],
+          [rels[msg.relation_id] || msg.relation_id]
+        );
+      }
+      const edges = viz.edges || [];
+      const topics = (viz.nodes || []).filter((node) => node.is_topic).map((node) => node.entity_id);
+      for (const topic of topics) {
+        const first = edges.find((edge) => edge.source === topic);
+        if (!first) continue;
+        const second = edges.find((edge) => edge.source === first.target);
+        if (!second) continue;
+        return renderMiniChain(
+          [
+            { label: labels[topic] || topic, cls: "topic" },
+            { label: labels[first.target] || first.target, cls: "mid", dim: "中间节点" },
+            { label: labels[second.target] || second.target, cls: "target", dim: "二阶邻居" },
+          ],
+          [rels[first.relation_id] || first.relation_id, rels[second.relation_id] || second.relation_id]
+        );
+      }
+      return null;
+    }
+
+    function renderInputSection(viz) {
+      const spec = viz.feature_spec || {};
+      const edges = viz.edges || [];
+      const relationCount = new Set(edges.map((edge) => edge.relation_type ?? edge.relation_id)).size;
+      const sec = mpSection("输入节点表示", `节点数量 ${(viz.nodes || []).length}`);
+      const grid = element("div", "mp-input-grid");
+      grid.append(
+        mpStatCard("节点数量", (viz.nodes || []).length, "子图节点"),
+        mpStatCard("边数量", edges.length, "关系三元组"),
+        mpStatCard("关系类型", `${relationCount} 种`, "按关系分类聚合"),
+        mpStatCard("节点初始特征", `${spec.input_dim ?? "?"} 维`, `BERT ${spec.text_dim ?? 128} + is_topic 1`)
+      );
+      sec.body.append(grid);
+      return sec.section;
+    }
+
+    function renderLayerSection(viz, layer, hop) {
+      const isLayer2 = hop === 2;
+      const title = isLayer2 ? "Layer 2 高阶语义传播" : "Layer 1 邻居信息聚合";
+      const badge = isLayer2 ? "2-hop 邻居" : "直接邻居";
+      const sec = mpSection(title, badge);
+      const grid = element("div", "mp-layer-grid");
+
+      const flowCard = element("div", "mp-flow-card");
+      flowCard.append(element("div", "mp-flow-title", isLayer2 ? "跨层传播流程" : "邻居信息聚合流程"));
+      const steps = element("div", "mp-flow-steps");
+      if (isLayer2) {
+        steps.append(
+          mpFlowRow(["第一层更新后的节点表示", "二阶邻居消息"]),
+          mpArrow(),
+          element("div", "mp-flow-step hot", "跨层关系聚合"),
+          mpArrow(),
+          element("div", "mp-flow-step hot", "更新高阶节点表示")
+        );
+      } else {
+        steps.append(
+          mpFlowRow(["节点自身特征", "关系类型邻居消息"]),
+          mpArrow(),
+          element("div", "mp-flow-step hot", "关系聚合"),
+          mpArrow(),
+          element("div", "mp-flow-step hot", "更新节点表示")
+        );
+      }
+      flowCard.append(steps);
+      grid.append(flowCard);
+
+      const stats = element("div", "mp-stats");
+      const chain = buildLayerChain(viz, layer, hop);
+      if (chain) stats.append(chain);
+
+      const stateList = layer?.node_states || [];
+      const messageCount = stateList.reduce((sum, state) => sum + (state.incoming || []).reduce((x, m) => x + m.count, 0), 0);
+      const relLabels = [...new Set((layer?.edge_messages || []).map((m) => mpRelationLabels(viz)[m.relation_id] || m.relation_id))];
+      stats.append(
+        mpStatRow("聚合邻居数量", `${messageCount} 条消息`),
+        mpStatRow("关系类型", relLabels.slice(0, 3).join("、") || "—"),
+        mpStatRow("传播范围", isLayer2 ? "2-hop 邻居" : "1-hop 邻居"),
+        mpStatRow("输出维度", "128 维节点 Embedding")
+      );
+      grid.append(stats);
+      sec.body.append(grid);
+      return sec.section;
+    }
+
+    function renderOutputSection(viz) {
+      const sec = mpSection("节点表示学习结果", "Embedding 输出");
+      const grid = element("div", "mp-output-grid");
+      const sorted = [...(viz.nodes || [])].sort((a, b) => Number(b.importance || 0) - Number(a.importance || 0));
+      sorted.slice(0, 3).forEach((node) => {
+        const card = element("div", "mp-output-card");
+        card.append(
+          element("div", "mp-output-name", node.label || node.entity_id),
+          element("div", "mp-output-dim", "Embedding: 128 维")
+        );
+        const score = element("div", "mp-output-score");
+        const bar = element("i");
+        bar.style.width = `${Math.max(0, Math.min(100, Number(node.importance || 0) * 100)).toFixed(1)}%`;
+        score.append(bar);
+        card.append(score);
+        grid.append(card);
+      });
+      sec.body.append(grid);
+      sec.body.append(element("div", "mp-connector", "↓ 连接节点评分模块"));
+      return sec.section;
+    }
+
+    function renderMessagePassingV2(viz, answerIds) {
+      const panel = element("section", "panel");
+      const head = element("div", "panel-head");
+      head.append(element("div", "panel-title", "R-GCN 消息传播"), element("span", "badge accent", "2层关系图卷积"));
+      panel.append(head);
+      const body = element("div", "panel-body");
+      body.append(renderInputSection(viz));
+      const layers = viz.layers || [];
+      layers.slice(0, 2).forEach((layer, index) => {
+        body.append(renderLayerSection(viz, layer, index + 1));
+      });
+      body.append(renderOutputSection(viz));
+      panel.append(body);
+      return panel;
+    }
+
+    function renderGnnVisualization(data) {
+      const viz = data?.gnn_visualization;
+      if (!viz || !viz.nodes || !viz.nodes.length) return document.createDocumentFragment();
+      const answerIds = (data.candidates || []).map((c) => c.entity_id);
+      const fragment = document.createDocumentFragment();
+      fragment.append(
+        renderGnnSubgraph(viz, answerIds),
+        renderFeatureFusion(viz, answerIds),
+        renderMessagePassingV2(viz, answerIds)
+      );
+      return fragment;
     }
 
     async function runInference() {
       rerunButton.disabled = true;
-      macroInfo.hidden = true;
-      summary.hidden = true;
+      copyButton.disabled = true;
+      macroPanel.hidden = true;
       showLoading();
 
       try {
         const params = new URLSearchParams(window.location.search);
-        const qParam = params.get("q");
-        const apiUrl = qParam ? "/api/macro-infer?q=" + qParam : "/api/macro-infer";
+        const qParam = params.get("q") || "1";
+        setActiveQuestion(Number(qParam));
+        const apiUrl = "/api/macro-infer?q=" + qParam;
         const response = await fetch(apiUrl, { headers: { Accept: "application/json" } });
         if (!response.ok) throw new Error(`服务器返回 ${response.status}`);
 
@@ -329,25 +1542,28 @@
         const paths = Array.isArray(data.paths) ? data.paths : [];
 
         questionText.textContent = data.question || "未提供问题文本";
-        renderSummary(candidates.length, paths.length);
-
-        // 宏观信息
-        if (data.hyper_relations || data.subgraph_size || data.topic_entities) {
-          macroSummary.replaceChildren(
-            element("div", "macro-line", "超关系：" + (data.hyper_relations || []).map(x => x.label + " (" + x.score + ")").join("，")),
-            element("div", "macro-line", "子图：" + (data.subgraph_size?.nodes || "?") + "节点，" + (data.subgraph_size?.edges || "?") + "边"),
-            element("div", "macro-line", "主题：" + (data.topic_entities || []).join(" "))
-          );
-          macroInfo.hidden = false;
-        }
-
-        result.replaceChildren(renderCandidates(candidates), renderPaths(paths));
+        renderMacroInfo(data);
+        result.replaceChildren(renderCandidates(candidates), renderPaths(paths, data.topic_entities), renderGnnVisualization(data));
       } catch (error) {
         showError(error instanceof Error ? error.message : "未知错误");
       } finally {
         rerunButton.disabled = false;
+        copyButton.disabled = false;
       }
     }
+
+    copyButton.addEventListener("click", () => {
+      const text = questionText.textContent + "\n\n" + Array.from(result.querySelectorAll(".candidate")).map((el) => el.textContent.trim()).join("\n");
+      navigator.clipboard?.writeText(text).catch(() => {});
+    });
+
+    document.querySelectorAll(".q-btn").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const q = btn.dataset.q;
+        history.replaceState(null, "", "?q=" + q);
+        runInference();
+      });
+    });
 
     rerunButton.addEventListener("click", runInference);
     runInference();

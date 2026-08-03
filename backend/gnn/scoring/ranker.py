@@ -1,4 +1,3 @@
-"""Top-K 候选答案筛选：排除主题实体后按概率排序取前 K 个。"""
 import torch
 
 def filter_top_k(scores, node_ids, topic_entity_ids=None, top_k=10):

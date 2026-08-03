@@ -1,16 +1,10 @@
-"""R-GCN 共享模型。宏观/微观 GNN 共用的关系图卷积网络。"""
-
 import torch
 from typing import Optional
 from dataclasses import dataclass
 import torch.nn as nn
 import torch.nn.functional as F
 
-
-# ── 单层关系图卷积 ──
-
 class RGCNLayer(nn.Module):
-    """单层 R-GCN：按关系类型分别聚合邻居信息，加自环变换后激活。"""
     def __init__(self, in_dim: int, out_dim: int, num_relations: int,
                  self_loop: bool = True, dropout: float = 0.0,
                  activation=F.relu, bias: bool = True):
@@ -35,8 +29,17 @@ class RGCNLayer(nn.Module):
             self.register_parameter('bias', None)
 
     def forward(self, x: torch.Tensor, edge_index: torch.Tensor, edge_type: torch.Tensor) -> torch.Tensor:
-        device = x.device; N = x.size(0)
+        return self._forward_impl(x, edge_index, edge_type, trace=False)[0]
+
+    def forward_with_trace(self, x: torch.Tensor, edge_index: torch.Tensor, edge_type: torch.Tensor):
+        """R-GCN layer forward that also exposes per-relation messages for visualization."""
+        return self._forward_impl(x, edge_index, edge_type, trace=True)
+
+    def _forward_impl(self, x: torch.Tensor, edge_index: torch.Tensor, edge_type: torch.Tensor, trace: bool):
+        device = x.device
+        N = x.size(0)
         out = torch.zeros(N, self.out_dim, device=device)
+        messages = []
         for rel in range(self.num_relations):
             mask = edge_type == rel
             if not mask.any():
@@ -44,17 +47,20 @@ class RGCNLayer(nn.Module):
             src, dst = edge_index[0, mask], edge_index[1, mask]
             neighbor_msg = x[src] @ self.relation_weights[rel]
             out.index_add_(0, dst, neighbor_msg)
+            messages.append({"relation": rel, "src": src, "dst": dst, "message": neighbor_msg})
+        self_loop = None
         if self.self_loop:
-            out = out + x @ self.loop_weight
+            self_loop = x @ self.loop_weight
+            out = out + self_loop
         if self.bias is not None:
             out = out + self.bias
         out = self.dropout(out)
         if self.activation is not None:
             out = self.activation(out)
-        return out
+        if trace:
+            return out, {"messages": messages, "self_loop": self_loop}
+        return out, None
 
-
-# ── 多层 R-GCN ──
 
 class RGCN(nn.Module):
     """通用 R-GCN 编码器，默认 2 层。宏观/微观共用编码部分。"""
@@ -80,10 +86,7 @@ class RGCN(nn.Module):
         return x
 
 
-# ── 分类头（宏观用） ──
-
 class RGCNNodeClassifier(nn.Module):
-    """R-GCN + 分类头。宏观侧：判断子图里每个节点是不是答案（二分类）。"""
     def __init__(self, in_dim: int, hidden_dim: int, num_relations: int,
                  num_classes: int = 2, num_layers: int = 2, dropout: float = 0.2):
         super().__init__()
@@ -103,10 +106,7 @@ class RGCNNodeClassifier(nn.Module):
         return F.softmax(self.forward(x, edge_index, edge_type), dim=-1)
 
 
-# ── 评分头（微观用） ──
-
 class RGCNNodeScorer(nn.Module):
-    """R-GCN + Sigmoid 评分头。微观侧：输出每个节点是答案的概率 [0,1]。"""
     def __init__(self, in_dim: int, hidden_dim: int, num_relations: int,
                  num_layers: int = 2, dropout: float = 0.2):
         super().__init__()
@@ -124,7 +124,6 @@ class RGCNNodeScorer(nn.Module):
 
 
 # ── 统一推理入口 ──
-
 @dataclass
 class InferenceResult:
     node_embeddings: torch.Tensor  # (N, out_dim)
