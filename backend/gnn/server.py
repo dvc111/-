@@ -1,5 +1,3 @@
-"""微观+GNN 演示服务器（纯内置模块，无需安装）"""
-
 import sys, os, json, mimetypes
 from http.server import HTTPServer, BaseHTTPRequestHandler
 from pathlib import Path
@@ -12,6 +10,7 @@ import torch
 from retrieval.micro_rag import build_micro_evidence_subgraph, MicroRetriever
 from gnn.core.model import RGCNNodeScorer
 from gnn.micro_gnn.inference import run_micro_inference
+from gnn.micro_gnn.introspect import run_micro_introspection
 from gnn.micro_gnn.loader import assemble_micro_subgraph
 
 EXAMPLES_DIR = Path(__file__).resolve().parents[2] / "backend" / "retrieval" / "examples"
@@ -31,8 +30,10 @@ def _load(name):
     dde = {eid: torch.tensor(v) for eid, v in e["entity_dde"].items()}
     gd = assemble_micro_subgraph([t["triple"] for t in e["evidence_triples"]], emb, dde)
     rmap = {i: rid for i, rid in enumerate(sorted(e["relation_labels"]))} if e["relation_labels"] else None
+    triples = [tuple(t["triple"]) for t in e["evidence_triples"]]
     return (p, gd, emb, dde, e["relation_labels"], rmap,
-            {n["entity_id"]: n["label"] for n in e["node_features"]})
+            {n["entity_id"]: n["label"] for n in e["node_features"]},
+            triples, retriever.encoder.dimensions, e["feature_spec"]["dde_dim"])
 
 # 加载训练好的模型
 if MODEL_PATH.exists():
@@ -54,15 +55,20 @@ class Handler(BaseHTTPRequestHandler):
             ex = parse_qs(urlparse(self.path).query).get("example", ["aspirin"])[0]
             if ex not in _cache:
                 _cache[ex] = _load(ex)
-            p, gd, emb, dde, rl, rmap, el = _cache[ex]
+            p, gd, emb, dde, rl, rmap, el, triples, text_dim, dde_dim = _cache[ex]
             result = run_micro_inference(model=model, graph_data=gd, topic_entity_ids=p["topic_entities"],
                 entity_embeddings=emb, entity_dde=dde, entity_labels=el, relation_labels=rl,
                 relation_id_map=rmap, top_k=5, max_hops=3)
+            vis = run_micro_introspection(model=model, graph_data=gd, triples=triples,
+                relation_id_map=rmap, entity_labels=el, relation_labels=rl,
+                topic_entity_ids=p["topic_entities"], text_dim=text_dim, dde_dim=dde_dim,
+                question_embedding=retriever.encoder.encode(p["question_text"]))
             self.send_response(200)
             self.send_header("Content-Type", "application/json; charset=utf-8")
             self.end_headers()
             self.wfile.write(json.dumps({"question": p["question_text"],
-                "candidates": result["candidate_answers"], "paths": result["reasoning_paths"]},
+                "candidates": result["candidate_answers"], "paths": result["reasoning_paths"],
+                "gnn_visualization": vis},
                 ensure_ascii=False).encode("utf-8"))
             return
 
