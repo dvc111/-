@@ -33,7 +33,46 @@ def _load(name):
     triples = [tuple(t["triple"]) for t in e["evidence_triples"]]
     return (p, gd, emb, dde, e["relation_labels"], rmap,
             {n["entity_id"]: n["label"] for n in e["node_features"]},
-            triples, retriever.encoder.dimensions, e["feature_spec"]["dde_dim"])
+            triples, retriever.encoder.dimensions, e["feature_spec"]["dde_dim"], e)
+
+
+def build_micro_retrieval(payload, evidence, entity_labels):
+    graph_nodes = [
+        {
+            "entity_id": node["entity_id"],
+            "label": node["label"],
+            "is_topic": node["entity_id"] in payload["topic_entities"],
+            "dde": evidence["entity_dde"].get(node["entity_id"], []),
+        }
+        for node in evidence["node_features"]
+    ]
+
+    graph_edges = []
+    for item in evidence["evidence_triples"]:
+        head_id, relation_id, tail_id = item["triple"]
+        graph_edges.append(
+            {
+                "head_id": head_id,
+                "relation_id": relation_id,
+                "relation_label": evidence["relation_labels"].get(relation_id, relation_id),
+                "tail_id": tail_id,
+                "head_label": entity_labels.get(head_id, head_id),
+                "tail_label": entity_labels.get(tail_id, tail_id),
+                "relevance_score": item["relevance_score"],
+                "head_dde": item["dde"]["head_dde"],
+                "tail_dde": item["dde"]["tail_dde"],
+            }
+        )
+
+    return {
+        "topic_entity_ids": payload["topic_entities"],
+        "input_triple_count": len(payload["macro_subgraph"]["triples"]),
+        "selected_triple_count": len(graph_edges),
+        "nodes": graph_nodes,
+        "evidence_triples": graph_edges,
+        "feature_spec": evidence["feature_spec"],
+        "scoring": evidence["scoring"],
+    }
 
 # 加载训练好的模型
 if MODEL_PATH.exists():
@@ -55,7 +94,7 @@ class Handler(BaseHTTPRequestHandler):
             ex = parse_qs(urlparse(self.path).query).get("example", ["aspirin"])[0]
             if ex not in _cache:
                 _cache[ex] = _load(ex)
-            p, gd, emb, dde, rl, rmap, el, triples, text_dim, dde_dim = _cache[ex]
+            p, gd, emb, dde, rl, rmap, el, triples, text_dim, dde_dim, evidence = _cache[ex]
             result = run_micro_inference(model=model, graph_data=gd, topic_entity_ids=p["topic_entities"],
                 entity_embeddings=emb, entity_dde=dde, entity_labels=el, relation_labels=rl,
                 relation_id_map=rmap, top_k=5, max_hops=3)
@@ -68,6 +107,7 @@ class Handler(BaseHTTPRequestHandler):
             self.end_headers()
             self.wfile.write(json.dumps({"question": p["question_text"],
                 "candidates": result["candidate_answers"], "paths": result["reasoning_paths"],
+                "micro_retrieval": build_micro_retrieval(p, evidence, el),
                 "gnn_visualization": vis},
                 ensure_ascii=False).encode("utf-8"))
             return

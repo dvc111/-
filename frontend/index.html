@@ -3,67 +3,509 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>知识图谱证据检索与推理</title>
+  <title>知识图谱微观检索与GNN推理系统</title>
   <style>
     :root {
       --accent: #4f46e5;
       --accent-2: #0ea5e9;
       --accent-soft: #eef2ff;
-      --green: #059669;
-      --green-soft: #ecfdf5;
-      --orange: #f59e0b;
-      --text: #172033;
-      --muted: #687386;
-      --line: #e4e8f0;
+      --text: #1a2233;
+      --muted: #64748b;
+      --line: #e2e8f0;
       --surface: #ffffff;
-      --background: #f5f7fb;
+      --background: #f4f6fb;
       --danger: #b42318;
+      --success: #059669;
+      --shadow: 0 1px 3px rgba(15, 23, 42, .06), 0 4px 12px rgba(15, 23, 42, .05);
     }
 
-    * { box-sizing: border-box; }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
 
     body {
-      margin: 0;
       color: var(--text);
       background: var(--background);
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Microsoft YaHei", sans-serif;
+      min-height: 100vh;
     }
 
     .header {
-      padding: 30px 20px 28px;
+      padding: 22px 20px 18px;
       color: #fff;
       text-align: center;
-      background: linear-gradient(135deg, #4f46e5, #6d4cc3);
+      background: linear-gradient(120deg, #312e81, #4f46e5 55%, #0ea5e9);
+      box-shadow: 0 2px 10px rgba(79, 70, 229, .18);
     }
 
-    .header h1 { margin: 0; font-size: 26px; font-weight: 700; }
-    .header p { margin: 9px 0 0; color: rgba(255,255,255,.8); font-size: 14px; }
+    .header h1 {
+      margin: 0;
+      font-size: 21px;
+      font-weight: 700;
+    }
 
-    .wrap { width: min(1080px, 100%); margin: 0 auto; padding: 22px 18px 36px; }
+    .header p {
+      margin: 7px 0 0;
+      color: rgba(255, 255, 255, .78);
+      font-size: 12px;
+    }
 
-    .card {
-      margin-bottom: 16px;
-      padding: 24px;
+    .wrap {
+      width: min(880px, 100%);
+      margin: 0 auto;
+      padding: 16px 16px 32px;
+    }
+
+    .panel {
       background: var(--surface);
       border: 1px solid var(--line);
-      border-radius: 15px;
-      box-shadow: 0 5px 18px rgba(24, 32, 51, .035);
+      border-radius: 10px;
+      box-shadow: var(--shadow);
+      margin-bottom: 14px;
+      overflow: hidden;
     }
 
-    .card-heading {
+    .panel-head {
+      padding: 12px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .panel-title {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--muted);
+    }
+
+    .panel-title .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--accent);
+      flex-shrink: 0;
+    }
+
+    .badge {
+      padding: 3px 9px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+
+    .badge.accent { color: var(--accent); background: var(--accent-soft); }
+    .badge.success { color: var(--success); background: #ecfdf5; }
+
+    .panel-body { padding: 16px; }
+
+    .question {
+      font-size: 16px;
+      font-weight: 600;
+      line-height: 1.7;
+    }
+
+    .gnn-graph-wrap { margin-top: 4px; }
+    .gnn-svg {
+      display: block;
+      width: 100%;
+      height: auto;
+      background: #fbfcfe;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+    }
+    .graph-legend { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 10px; }
+    .legend-item { display: inline-flex; align-items: center; gap: 6px; color: var(--muted); font-size: 11px; }
+    .legend-line { width: 22px; height: 3px; border-radius: 2px; }
+    .legend-node { width: 10px; height: 10px; border-radius: 50%; border: 2px solid var(--line); }
+    .legend-node.topic { border-color: var(--accent); background: var(--accent); }
+    .legend-node.answer { border-color: var(--success); background: var(--success); }
+    .gnn-label { font-size: 11px; font-weight: 600; paint-order: stroke; stroke: #fff; stroke-width: 3px; }
+
+    .feat-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+    }
+    .feat-card {
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      background: #fff;
+      overflow: hidden;
+      box-shadow: 0 1px 2px rgba(15, 23, 42, .04);
+    }
+    .feat-card-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 12px 14px;
+      border-bottom: 1px solid var(--line);
+      background: linear-gradient(120deg, #f8faff, #ffffff);
+    }
+    .feat-card-name { font-size: 14px; font-weight: 750; overflow-wrap: anywhere; }
+    .type-badge {
+      padding: 3px 8px;
+      border-radius: 999px;
+      font-size: 10px;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+    .type-badge.topic { background: var(--accent-soft); color: var(--accent); }
+    .type-badge.answer { background: #ecfdf5; color: var(--success); }
+    .feat-card-body { display: flex; flex-direction: column; gap: 10px; padding: 12px 14px; }
+    .feat-source {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 9px 10px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fafbfe;
+    }
+    .feat-source-icon {
+      width: 30px; height: 30px;
+      display: grid; place-items: center;
+      border-radius: 8px;
+      color: #fff;
+      font-size: 12px;
+      font-weight: 800;
+      flex-shrink: 0;
+    }
+    .feat-source.semantic .feat-source-icon { background: linear-gradient(135deg, #6366f1, #8b5cf6); }
+    .feat-source.structure .feat-source-icon { background: linear-gradient(135deg, #0ea5e9, #06b6d4); }
+    .feat-source.attr .feat-source-icon { background: linear-gradient(135deg, #f59e0b, #f97316); }
+    .feat-source-info { min-width: 0; flex: 1; display: flex; flex-direction: column; gap: 2px; }
+    .feat-source-label { color: var(--muted); font-size: 10px; font-weight: 600; }
+    .feat-source-value { color: var(--text); font-size: 12px; font-weight: 750; overflow-wrap: anywhere; }
+    .feat-source-dim { color: var(--muted); font-size: 10px; }
+
+    .importance {
+      padding: 9px 10px;
+      border: 1px solid rgba(5, 150, 105, .22);
+      border-radius: 8px;
+      background: linear-gradient(120deg, rgba(5, 150, 105, .08), rgba(14, 165, 233, .08));
+    }
+    .importance-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 6px;
+    }
+    .importance-label { color: var(--muted); font-size: 10px; font-weight: 650; }
+    .importance-value { color: var(--success); font-size: 12px; font-weight: 800; }
+    .importance-track { height: 6px; overflow: hidden; background: #eef1f6; border-radius: 999px; }
+    .importance-fill {
+      height: 100%;
+      border-radius: inherit;
+      background: linear-gradient(90deg, var(--success), var(--accent-2));
+      transition: width .4s ease;
+    }
+
+    .fusion-flow {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      margin-bottom: 16px;
+      padding: 14px 16px;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      background: linear-gradient(135deg, #f8faff, #fbfcfe);
+    }
+    .flow-sources { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; }
+    .flow-source {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 3px;
+      min-width: 108px;
+      padding: 10px 12px;
+      border: 1px solid #dfe6fb;
+      border-radius: 8px;
+      background: #fff;
+    }
+    .flow-icon {
+      width: 26px; height: 26px;
+      display: grid; place-items: center;
+      border-radius: 8px;
+      color: #fff;
+      font-size: 12px;
+      font-weight: 800;
+    }
+    .flow-source.semantic .flow-icon { background: linear-gradient(135deg, #6366f1, #8b5cf6); }
+    .flow-source.structure .flow-icon { background: linear-gradient(135deg, #0ea5e9, #06b6d4); }
+    .flow-source.attr .flow-icon { background: linear-gradient(135deg, #f59e0b, #f97316); }
+    .flow-name { color: var(--text); font-size: 12px; font-weight: 700; white-space: nowrap; }
+    .flow-dim { color: var(--muted); font-size: 10px; }
+    .flow-arrow { color: var(--accent); font-size: 16px; font-weight: 800; line-height: 1; }
+    .flow-center {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 9px 16px;
+      border-radius: 8px;
+      color: #fff;
+      font-size: 13px;
+      font-weight: 750;
+      background: linear-gradient(90deg, var(--accent), var(--accent-2));
+      box-shadow: 0 4px 12px rgba(79, 70, 229, .22);
+    }
+    .flow-center.rgcn { background: linear-gradient(90deg, #0f172a, #334155); box-shadow: 0 4px 12px rgba(15, 23, 42, .2); }
+
+    .mp-section {
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      background: #fff;
+      overflow: hidden;
+      margin-bottom: 14px;
+    }
+    .mp-section-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 11px 14px;
+      border-bottom: 1px solid var(--line);
+      background: linear-gradient(120deg, #f8faff, #ffffff);
+    }
+    .mp-section-title { color: var(--text); font-size: 13px; font-weight: 750; }
+    .mp-section-body { padding: 14px; }
+    .mp-input-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 10px;
+    }
+    .mp-stat {
+      padding: 12px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fafbfe;
+    }
+    .mp-stat-label { color: var(--muted); font-size: 10px; font-weight: 650; margin-bottom: 6px; }
+    .mp-stat-value { color: var(--text); font-size: 16px; font-weight: 850; }
+    .mp-stat-sub { color: var(--muted); font-size: 10px; margin-top: 4px; }
+    .mp-layer-grid {
+      display: grid;
+      grid-template-columns: minmax(240px, 1fr) minmax(260px, 1.2fr);
+      gap: 14px;
+      align-items: start;
+    }
+    .mp-flow-card {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 12px;
+      background: #fafbfe;
+    }
+    .mp-flow-title { color: var(--muted); font-size: 10px; font-weight: 700; margin-bottom: 10px; }
+    .mp-flow-steps { display: flex; flex-direction: column; align-items: center; gap: 5px; }
+    .mp-flow-row { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; }
+    .mp-flow-step {
+      padding: 8px 12px;
+      border: 1px solid #dfe6fb;
+      border-radius: 8px;
+      background: #fff;
+      color: var(--text);
+      font-size: 12px;
+      font-weight: 700;
+      text-align: center;
+    }
+    .mp-flow-step.hot {
+      background: linear-gradient(90deg, var(--accent), var(--accent-2));
+      border-color: transparent;
+      color: #fff;
+    }
+    .mp-flow-plus { color: var(--muted); font-size: 12px; font-weight: 800; align-self: center; }
+    .mp-flow-arrow { color: var(--accent); font-size: 15px; font-weight: 800; line-height: 1; }
+    .mp-chain { display: flex; flex-direction: column; align-items: center; gap: 6px; }
+    .mp-chain-node {
+      min-width: 160px;
+      padding: 10px 14px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fff;
+      text-align: center;
+      animation: mpNodeGlow 2.6s ease-in-out infinite;
+    }
+    .mp-chain-node.topic { border-color: var(--accent); background: var(--accent-soft); color: var(--accent); }
+    .mp-chain-node.mid { border-color: var(--accent-2); background: #eff6ff; color: #1d4ed8; }
+    .mp-chain-node.target { border-color: var(--success); background: #ecfdf5; color: var(--success); }
+    .mp-chain-node .name { font-size: 13px; font-weight: 800; }
+    .mp-chain-node .dim { font-size: 10px; color: var(--muted); margin-top: 3px; }
+    .mp-chain-edge { display: flex; align-items: center; gap: 6px; color: var(--muted); font-size: 11px; font-weight: 650; }
+    .mp-chain-edge .line { width: 26px; height: 2px; background: var(--accent); border-radius: 2px; }
+    .mp-chain-edge .dot {
+      width: 7px; height: 7px;
+      border-radius: 50%;
+      background: var(--accent);
+      animation: mpPulse 1.3s ease-in-out infinite;
+    }
+    .mp-chain-edge .rel { white-space: nowrap; }
+    .mp-stats { display: flex; flex-direction: column; gap: 10px; }
+    .mp-stat-row {
       display: flex;
       align-items: center;
       justify-content: space-between;
       gap: 12px;
-      margin-bottom: 18px;
+      padding: 10px 12px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fff;
+    }
+    .mp-stat-row .k { color: var(--muted); font-size: 11px; font-weight: 650; }
+    .mp-stat-row .v { color: var(--text); font-size: 12px; font-weight: 800; text-align: right; }
+    .mp-output-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+    }
+    .mp-output-card {
+      padding: 12px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fafbfe;
+    }
+    .mp-output-name { font-size: 13px; font-weight: 800; margin-bottom: 6px; }
+    .mp-output-dim { color: var(--muted); font-size: 11px; }
+    .mp-output-score { margin-top: 8px; height: 5px; overflow: hidden; background: #eef1f6; border-radius: 999px; }
+    .mp-output-score i { display: block; height: 100%; background: linear-gradient(90deg, var(--accent), var(--accent-2)); border-radius: inherit; }
+    .mp-connector {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      margin-top: 12px;
+      padding: 10px 14px;
+      border-radius: 8px;
+      background: linear-gradient(90deg, #0f172a, #334155);
+      color: #fff;
+      font-size: 12px;
+      font-weight: 750;
     }
 
-    .card-title { color: #526078; font-size: 16px; font-weight: 700; }
-    .card-note { color: var(--muted); font-size: 12px; }
-    .question { font-size: 21px; font-weight: 700; line-height: 1.55; }
+    .score-row {
+      display: grid;
+      grid-template-columns: 30px minmax(90px, 140px) 1fr 58px;
+      gap: 12px;
+      align-items: center;
+      padding: 10px 0;
+      border-bottom: 1px solid var(--line);
+    }
+    .score-row:last-child { border-bottom: 0; }
+    .rank {
+      width: 24px; height: 24px;
+      display: grid; place-items: center;
+      border-radius: 50%;
+      background: #f1f5f9;
+      color: var(--muted);
+      font-size: 11px;
+      font-weight: 700;
+    }
+    .rank.top { background: var(--accent); color: #fff; }
+    .score-name { overflow-wrap: anywhere; font-size: 13px; font-weight: 650; }
+    .bar-track { height: 8px; overflow: hidden; background: #eef1f6; border-radius: 999px; }
+    .bar { height: 100%; background: linear-gradient(90deg, var(--accent), var(--accent-2)); border-radius: inherit; transition: width .45s ease; }
+    .probability { color: var(--muted); font-size: 12px; text-align: right; font-weight: 650; }
 
-    .summary { display: flex; gap: 8px; margin-top: 14px; flex-wrap: wrap; }
-    .tag { padding: 5px 10px; color: var(--accent); background: var(--accent-soft); border-radius: 999px; font-size: 12px; }
+    .path { padding: 8px 0 14px; }
+    .path + .path { padding-top: 16px; border-top: 1px dashed var(--line); }
+    .path-head { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; }
+    .path-index {
+      width: 22px; height: 22px;
+      display: grid; place-items: center;
+      border-radius: 6px;
+      background: var(--accent);
+      color: #fff;
+      font-size: 11px;
+      font-weight: 700;
+      flex-shrink: 0;
+    }
+    .path-answer { color: var(--text); font-size: 13px; font-weight: 700; flex: 1; min-width: 0; overflow-wrap: anywhere; }
+    .path-flow {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 4px;
+      font-size: 13px;
+      line-height: 2;
+      padding-left: 10px;
+      border-left: 3px solid var(--line);
+    }
+    .entity {
+      font-weight: 650;
+      color: var(--text);
+      background: var(--accent-soft);
+      border: 1px solid #dfe6fb;
+      padding: 3px 10px;
+      border-radius: 7px;
+      white-space: nowrap;
+    }
+    .relation {
+      color: var(--muted);
+      font-size: 11px;
+      background: #f1f5f9;
+      border: 1px solid #e2e8f0;
+      padding: 3px 8px;
+      border-radius: 999px;
+      white-space: nowrap;
+    }
+    .arrow { color: #a5b0c0; font-size: 11px; }
+
+    .final-answer {
+      padding: 14px 16px;
+      border: 1px solid rgba(79, 70, 229, .22);
+      border-radius: 8px;
+      background: linear-gradient(120deg, rgba(79, 70, 229, .08), rgba(14, 165, 233, .08));
+      color: var(--text);
+      font-size: 14px;
+      line-height: 1.9;
+    }
+    .final-answer strong { color: var(--accent); }
+
+    .empty, .state {
+      padding: 30px 10px;
+      color: var(--muted);
+      font-size: 13px;
+      text-align: center;
+    }
+    .error { color: var(--danger); }
+    .spinner {
+      display: block;
+      width: 28px; height: 28px;
+      margin: 0 auto 12px;
+      border: 3px solid #e2e8f0;
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin .7s linear infinite;
+    }
+    .button {
+      width: 100%;
+      padding: 12px 16px;
+      color: #fff;
+      background: linear-gradient(90deg, var(--accent), var(--accent-2));
+      border: 0;
+      border-radius: 8px;
+      font: inherit;
+      font-size: 13px;
+      font-weight: 650;
+      cursor: pointer;
+    }
+    .button:hover { opacity: .9; }
+    .button:disabled { cursor: wait; opacity: .55; }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+    @keyframes mpPulse {
+      0%, 100% { transform: scale(1); opacity: .45; }
+      50% { transform: scale(1.5); opacity: 1; }
+    }
+    @keyframes mpNodeGlow {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(79, 70, 229, 0); }
+      50% { box-shadow: 0 0 0 4px rgba(79, 70, 229, .10); }
+    }
 
     .pipeline {
       display: grid;
@@ -71,7 +513,6 @@
       gap: 20px;
       align-items: stretch;
     }
-
     .pipeline-step {
       position: relative;
       min-height: 100px;
@@ -81,7 +522,6 @@
       border-radius: 12px;
       text-align: center;
     }
-
     .pipeline-step:not(:last-child)::after {
       content: "→";
       position: absolute;
@@ -90,7 +530,6 @@
       color: #9aa7be;
       font-size: 20px;
     }
-
     .step-number {
       display: inline-grid;
       width: 25px;
@@ -102,16 +541,23 @@
       font-size: 12px;
       font-weight: 700;
     }
-
     .step-name { margin-top: 9px; font-size: 14px; font-weight: 700; }
     .step-desc { margin-top: 5px; color: var(--muted); font-size: 12px; line-height: 1.5; }
-
-    .metrics { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-top: 16px; }
-    .metric { padding: 15px; background: #f8faff; border: 1px solid #e3e8f2; border-radius: 11px; }
+    .metrics {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+      margin-top: 16px;
+    }
+    .metric {
+      padding: 15px;
+      background: #f8faff;
+      border: 1px solid #e3e8f2;
+      border-radius: 11px;
+    }
     .metric-label { color: var(--muted); font-size: 12px; }
     .metric-value { margin-top: 6px; font-size: 21px; font-weight: 750; }
     .metric-detail { margin-top: 3px; color: #8690a3; font-size: 11px; }
-
     .evidence-row {
       display: grid;
       grid-template-columns: 42px minmax(260px, 1fr) minmax(170px, .7fr) 58px;
@@ -120,75 +566,54 @@
       padding: 14px 0;
       border-bottom: 1px solid var(--line);
     }
-
     .evidence-row:last-child { border-bottom: 0; }
-    .rank { display: grid; width: 30px; height: 30px; place-items: center; color: #fff; background: var(--accent); border-radius: 9px; font-size: 13px; font-weight: 700; }
-    .triple { display: flex; gap: 7px; align-items: center; flex-wrap: wrap; font-size: 14px; }
-    .triple .entity { padding: 5px 8px; background: var(--accent-soft); border-radius: 7px; font-weight: 650; }
+    .evidence-row .rank { background: var(--accent); }
+    .triple {
+      display: flex;
+      gap: 7px;
+      align-items: center;
+      flex-wrap: wrap;
+      font-size: 14px;
+    }
+    .triple .entity {
+      padding: 5px 8px;
+      background: var(--accent-soft);
+      border-radius: 7px;
+      font-weight: 650;
+    }
     .triple .relation { color: var(--muted); }
     .dde-note { margin-top: 7px; color: #8490a5; font-size: 11px; }
-    .bar-track { height: 8px; overflow: hidden; background: #eceff5; border-radius: 999px; }
-    .bar { height: 100%; background: linear-gradient(90deg, var(--accent), var(--accent-2)); border-radius: inherit; transition: width .4s ease; }
-    .probability { color: var(--muted); font-size: 13px; text-align: right; }
 
-    .candidate {
-      display: grid;
-      grid-template-columns: minmax(120px, 180px) 1fr 60px;
-      gap: 14px;
-      align-items: center;
-      padding: 13px 0;
-      border-bottom: 1px solid var(--line);
-    }
-
-    .candidate:last-child { border-bottom: 0; }
-    .candidate-name { overflow-wrap: anywhere; font-size: 15px; font-weight: 650; }
-
-    .path { padding: 5px 0 16px; }
-    .path + .path { padding-top: 16px; border-top: 1px solid var(--line); }
-    .path:last-child { padding-bottom: 2px; }
-    .path-answer { margin-bottom: 10px; color: var(--accent); font-size: 14px; font-weight: 700; }
-    .path-content { display: flex; gap: 7px; align-items: center; flex-wrap: wrap; font-size: 14px; line-height: 1.8; }
-    .path-content .entity { padding: 5px 8px; background: var(--accent-soft); border-radius: 7px; font-weight: 650; }
-    .path-content .relation { padding: 4px 8px; color: var(--muted); background: #f3f5f8; border-radius: 999px; }
-    .arrow { color: #adb3c0; }
-
-    .empty, .state { padding: 26px 8px; color: var(--muted); font-size: 14px; text-align: center; }
-    .error { color: var(--danger); }
-    .spinner { display: block; width: 26px; height: 26px; margin: 0 auto 10px; border: 3px solid #e5e7f1; border-top-color: var(--accent); border-radius: 50%; animation: spin .7s linear infinite; }
-    .button { width: 100%; padding: 13px 16px; color: #fff; background: var(--accent); border: 0; border-radius: 10px; font: inherit; font-size: 14px; font-weight: 700; cursor: pointer; }
-    .button:hover { background: #4338ca; }
-    .button:disabled { cursor: wait; opacity: .58; }
-    @keyframes spin { to { transform: rotate(360deg); } }
-
-    @media (max-width: 760px) {
+    @media (max-width: 700px) {
+      .stat-grid, .mp-input-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .feat-grid, .mp-layer-grid, .mp-output-grid { grid-template-columns: 1fr; }
+      .score-row { grid-template-columns: 26px minmax(72px, 96px) 1fr 48px; gap: 8px; }
       .pipeline, .metrics { grid-template-columns: 1fr 1fr; }
       .pipeline-step:nth-child(2)::after { display: none; }
       .evidence-row { grid-template-columns: 36px 1fr 52px; }
       .evidence-row .bar-track { grid-column: 2 / 4; }
     }
 
-    @media (max-width: 520px) {
-      .header h1 { font-size: 22px; }
-      .card { padding: 18px; }
-      .pipeline, .metrics { grid-template-columns: 1fr; }
-      .pipeline-step::after { display: none; }
-      .candidate { grid-template-columns: minmax(90px, 120px) 1fr 48px; gap: 8px; }
+    @media (prefers-reduced-motion: reduce) {
+      .bar, .spinner, .mp-chain-node, .mp-chain-edge .dot { animation: none; transition: none; }
     }
-
-    @media (prefers-reduced-motion: reduce) { .bar, .spinner { transition: none; animation: none; } }
   </style>
 </head>
 <body>
   <header class="header">
-    <h1>知识图谱证据检索与推理</h1>
-    <p>候选数据接收 · DDE 结构编码 · 证据相关性评分 · 候选答案排序</p>
+    <h1>知识图谱微观检索与GNN推理系统</h1>
+    <p>证据子图构建 · DDE 结构编码 · R-GCN 关系传播 · 节点评分 · 可解释路径</p>
   </header>
 
   <main class="wrap">
-    <section class="card" aria-labelledby="question-title">
-      <div class="card-title" id="question-title">用户问题</div>
-      <div class="question" id="question-text">正在加载…</div>
-      <div class="summary" id="summary" hidden></div>
+    <section class="panel">
+      <div class="panel-head">
+        <div class="panel-title"><span class="dot"></span>用户问题</div>
+        <span class="badge accent" id="q-badge">微观检索示例</span>
+      </div>
+      <div class="panel-body">
+        <div class="question" id="question-text">正在加载…</div>
+      </div>
     </section>
 
     <div id="result" aria-live="polite"></div>
@@ -197,10 +622,8 @@
 
   <script>
     const questionText = document.getElementById("question-text");
-    const summary = document.getElementById("summary");
     const result = document.getElementById("result");
     const rerunButton = document.getElementById("rerun-button");
-    const currentExample = new URLSearchParams(location.search).get("example") || "aspirin";
 
     function element(tag, className, text) {
       const node = document.createElement(tag);
@@ -209,36 +632,543 @@
       return node;
     }
 
-    function cardHeader(title, note) {
-      const heading = element("div", "card-heading");
-      heading.append(element("div", "card-title", title));
-      if (note) heading.append(element("div", "card-note", note));
-      return heading;
+    function svgElement(tag, attrs = {}, text) {
+      const node = document.createElementNS("http://www.w3.org/2000/svg", tag);
+      Object.entries(attrs).forEach(([key, value]) => {
+        if (value !== undefined && value !== null) node.setAttribute(key, value);
+      });
+      if (text !== undefined) node.textContent = text;
+      return node;
+    }
+
+    function panelEl(title, badge) {
+      const panel = element("section", "panel");
+      const head = element("div", "panel-head");
+      head.append(element("div", "panel-title", title), element("span", "badge accent", badge));
+      const body = element("div", "panel-body");
+      panel.append(head, body);
+      return { panel, body };
     }
 
     function showLoading() {
-      const card = element("div", "card state");
-      card.append(element("span", "spinner"), document.createTextNode("正在运行证据检索与图推理…"));
-      result.replaceChildren(card);
+      const panel = element("div", "panel");
+      const body = element("div", "panel-body state");
+      body.append(element("span", "spinner"), document.createTextNode("正在运行推理…"));
+      panel.append(body);
+      result.replaceChildren(panel);
     }
 
     function showError(message) {
-      const card = element("div", "card state error", `请求失败：${message}`);
-      result.replaceChildren(card);
+      const panel = element("div", "panel");
+      const body = element("div", "panel-body state error", `请求失败：${message}`);
+      panel.append(body);
+      result.replaceChildren(panel);
     }
 
-    function renderSummary(candidateCount, pathCount, evidenceCount) {
-      summary.replaceChildren(
-        element("span", "tag", `${evidenceCount} 条关键证据`),
-        element("span", "tag", `${candidateCount} 个候选答案`),
-        element("span", "tag", `${pathCount} 条推理路径`)
+    const REL_COLORS = ["#4f46e5", "#0ea5e9", "#f59e0b", "#059669", "#dc2626", "#8b5cf6", "#14b8a6", "#f43f5e", "#64748b"];
+    let markerCounter = 0;
+
+    function relationColor(relationType) {
+      return REL_COLORS[Number(relationType ?? 0) % REL_COLORS.length] || REL_COLORS[0];
+    }
+
+    function computeGraphLayout(nodeIds, width = 760, height = 420) {
+      const cx = width / 2;
+      const cy = height / 2;
+      const maxRadius = Math.min(width / 2 - 64, height / 2 - 64);
+      const radius = Math.min(maxRadius, Math.max(110, 90 + nodeIds.length * 13));
+      const start = -Math.PI / 2;
+      const step = (2 * Math.PI) / Math.max(1, nodeIds.length);
+      const positions = new Map();
+      nodeIds.forEach((id, index) => {
+        const angle = start + index * step;
+        positions.set(id, {
+          x: cx + radius * Math.cos(angle),
+          y: cy + radius * Math.sin(angle),
+        });
+      });
+      return positions;
+    }
+
+    function renderGraphSvg(container, graph, answerIds, opts = {}) {
+      const width = opts.width || 760;
+      const height = opts.height || 420;
+      const topicIds = new Set((graph.nodes || []).filter((node) => node.is_topic).map((node) => node.entity_id));
+      const answerSet = new Set(answerIds || []);
+      const ordered = [...(graph.nodes || [])].sort((a, b) => Number(b.is_topic || 0) - Number(a.is_topic || 0));
+      const positions = computeGraphLayout(ordered.map((node) => node.entity_id), width, height);
+      const svg = svgElement("svg", { viewBox: `0 0 ${width} ${height}`, class: "gnn-svg", role: "img" });
+      const defs = svgElement("defs");
+      const markerIds = new Map();
+      [...new Set((graph.edges || []).map((edge) => edge.relation_type ?? 0))].forEach((rt) => {
+        const markerId = `gnn-arrow-${++markerCounter}`;
+        markerIds.set(rt, markerId);
+        const marker = svgElement("marker", {
+          id: markerId,
+          viewBox: "0 0 10 10",
+          refX: 9,
+          refY: 5,
+          markerWidth: 6,
+          markerHeight: 6,
+          orient: "auto-start-reverse",
+        });
+        marker.append(svgElement("path", { d: "M 0 0 L 10 5 L 0 10 z", fill: relationColor(rt) }));
+        defs.append(marker);
+      });
+      svg.append(defs);
+
+      (graph.edges || []).forEach((edge) => {
+        const from = positions.get(edge.source);
+        const to = positions.get(edge.target);
+        if (!from || !to) return;
+        const rt = edge.relation_type ?? 0;
+        const dx = to.x - from.x;
+        const dy = to.y - from.y;
+        const dist = Math.hypot(dx, dy) || 1;
+        const gap = 16;
+        svg.append(svgElement("line", {
+          x1: from.x + (dx / dist) * gap,
+          y1: from.y + (dy / dist) * gap,
+          x2: to.x - (dx / dist) * gap,
+          y2: to.y - (dy / dist) * gap,
+          stroke: relationColor(rt),
+          "stroke-width": 1.6,
+          "stroke-opacity": 0.7,
+          "marker-end": `url(#${markerIds.get(rt)})`,
+        }));
+      });
+
+      (graph.nodes || []).forEach((node) => {
+        const pos = positions.get(node.entity_id);
+        if (!pos) return;
+        const isTopic = topicIds.has(node.entity_id);
+        const isAnswer = answerSet.has(node.entity_id);
+        const g = svgElement("g", { class: "gnn-node" });
+        g.append(svgElement("circle", {
+          cx: pos.x,
+          cy: pos.y,
+          r: isTopic ? 17 : 14,
+          fill: isAnswer ? "#059669" : isTopic ? "var(--accent)" : "#e2e8f0",
+          stroke: isAnswer ? "#047857" : isTopic ? "var(--accent)" : "#94a3b8",
+          "stroke-width": isTopic || isAnswer ? 2 : 1.5,
+        }));
+        const dx = pos.x - width / 2;
+        const dy = pos.y - height / 2;
+        const lx = Math.min(width - 8, Math.max(8, pos.x + Math.sign(dx || 1) * 28));
+        const ly = Math.min(height - 8, Math.max(8, pos.y + Math.sign(dy || 1) * 22));
+        g.append(svgElement("text", {
+          x: lx,
+          y: ly,
+          class: "gnn-label",
+          "text-anchor": Math.abs(dx) < 26 ? "middle" : dx < 0 ? "end" : "start",
+        }, node.label || node.entity_id));
+        svg.append(g);
+      });
+
+      container.replaceChildren(svg);
+      return { svg, positions };
+    }
+
+    function graphLegend(graph) {
+      const legend = element("div", "graph-legend");
+      const relTypes = [...new Set((graph.edges || []).map((edge) => edge.relation_type ?? 0))];
+      relTypes.forEach((rt) => {
+        const edge = (graph.edges || []).find((item) => (item.relation_type ?? 0) === rt);
+        const item = element("span", "legend-item");
+        item.append(element("span", "legend-line"));
+        item.lastChild.style.background = relationColor(rt);
+        item.append(document.createTextNode(edge?.label || edge?.relation_id || `R${rt}`));
+        legend.append(item);
+      });
+      const topicItem = element("span", "legend-item");
+      topicItem.append(element("span", "legend-node topic"), document.createTextNode("主题实体"));
+      const answerItem = element("span", "legend-item");
+      answerItem.append(element("span", "legend-node answer"), document.createTextNode("候选答案"));
+      legend.append(topicItem, answerItem);
+      return legend;
+    }
+
+    function renderSubgraphSection(viz, candidates) {
+      const { panel, body } = panelEl("证据子图", `${viz.nodes.length} 节点 / ${viz.edges.length} 边`);
+      const wrap = element("div", "gnn-graph-wrap");
+      renderGraphSvg(wrap, viz, (candidates || []).map((candidate) => candidate.entity_id));
+      wrap.append(graphLegend(viz));
+      body.append(wrap);
+      return panel;
+    }
+
+    function renderFusionFlow(spec) {
+      const flow = element("div", "fusion-flow");
+      const sourcesRow = element("div", "flow-sources");
+      const sources = [
+        { cls: "semantic", icon: "语", name: "128维确定性哈希文本编码", dim: "确定性哈希" },
+        { cls: "structure", icon: "构", name: "DDE 结构特征", dim: `${spec.dde_dim ?? 10} 维` },
+        { cls: "attr", icon: "标", name: "节点属性", dim: "is_topic" },
+      ];
+      sources.forEach((source) => {
+        const box = element("div", "flow-source " + source.cls);
+        box.append(
+          element("span", "flow-icon", source.icon),
+          element("span", "flow-name", source.name),
+          element("span", "flow-dim", source.dim)
+        );
+        sourcesRow.append(box);
+      });
+      flow.append(sourcesRow);
+      flow.append(element("span", "flow-arrow", "↓"));
+      flow.append(element("div", "flow-center", `${spec.input_dim ?? 138} 维节点表示`));
+      flow.append(element("span", "flow-arrow", "↓"));
+      flow.append(element("div", "flow-center rgcn", "输入 R-GCN"));
+      return flow;
+    }
+
+    function renderFeatureFusion(viz, answerIds) {
+      const spec = viz.feature_spec || {};
+      const answerSet = new Set(answerIds || []);
+      const { panel, body } = panelEl("节点特征融合", `最终输入 ${spec.input_dim ?? "?"} 维`);
+      body.append(renderFusionFlow(spec));
+      const grid = element("div", "feat-grid");
+      (viz.nodes || []).forEach((node) => {
+        const card = element("div", "feat-card");
+        card.dataset.nodeId = node.entity_id;
+        const isAnswer = answerSet.has(node.entity_id);
+        const headBox = element("div", "feat-card-head");
+        headBox.append(element("div", "feat-card-name", node.label || node.entity_id));
+        if (node.is_topic) headBox.append(element("span", "type-badge topic", "主题实体"));
+        else if (isAnswer) headBox.append(element("span", "type-badge answer", "候选答案"));
+        card.append(headBox);
+
+        const cardBody = element("div", "feat-card-body");
+
+        const semantic = element("div", "feat-source semantic");
+        const semanticInfo = element("div", "feat-source-info");
+        semanticInfo.append(
+          element("div", "feat-source-label", "语义特征 · 128维确定性哈希文本编码"),
+          element("div", "feat-source-value", `相似度 score ${node.semantic_score?.toFixed(3) ?? "—"}`),
+          element("div", "feat-source-dim", `${node.text_dim ?? spec.text_dim ?? 128} 维`)
+        );
+        semantic.append(element("span", "feat-source-icon", "语"), semanticInfo);
+
+        const structure = element("div", "feat-source structure");
+        const structureInfo = element("div", "feat-source-info");
+        structureInfo.append(
+          element("div", "feat-source-label", "结构特征 · DDE 结构编码"),
+          element("div", "feat-source-value", `DDE ${node.dde_dim ?? spec.dde_dim ?? 10} 维 · 范数 ${node.dde_norm?.toFixed(3) ?? "—"}`),
+          element("div", "feat-source-dim", "入边/出边距离编码")
+        );
+        structure.append(element("span", "feat-source-icon", "构"), structureInfo);
+
+        const attr = element("div", "feat-source attr");
+        const attrInfo = element("div", "feat-source-info");
+        attrInfo.append(
+          element("div", "feat-source-label", "节点属性"),
+          element("div", "feat-source-value", `is_topic = ${node.is_topic ? 1 : 0}`),
+          element("div", "feat-source-dim", "1 维标记")
+        );
+        attr.append(element("span", "feat-source-icon", "标"), attrInfo);
+
+        const importanceValue = Math.max(0, Math.min(1, Number(node.importance) || 0));
+        const importance = element("div", "importance");
+        const importanceHead = element("div", "importance-head");
+        importanceHead.append(
+          element("div", "importance-label", "GNN 节点重要性"),
+          element("div", "importance-value", `${(importanceValue * 100).toFixed(1)}%`)
+        );
+        const importanceTrack = element("div", "importance-track");
+        const importanceFill = element("div", "importance-fill");
+        importanceFill.style.width = `${(importanceValue * 100).toFixed(1)}%`;
+        importanceTrack.append(importanceFill);
+        importance.append(importanceHead, importanceTrack);
+
+        cardBody.append(semantic, structure, attr, importance);
+        card.append(cardBody);
+        grid.append(card);
+      });
+      body.append(grid);
+      return panel;
+    }
+
+    function mpSection(title, badge) {
+      const section = element("section", "mp-section");
+      const head = element("div", "mp-section-head");
+      head.append(element("div", "mp-section-title", title), element("span", "badge accent", badge));
+      const body = element("div", "mp-section-body");
+      section.append(head, body);
+      return { section, body };
+    }
+
+    function mpStatCard(label, value, sub) {
+      const card = element("div", "mp-stat");
+      card.append(element("div", "mp-stat-label", label), element("div", "mp-stat-value", String(value ?? "—")));
+      if (sub) card.append(element("div", "mp-stat-sub", sub));
+      return card;
+    }
+
+    function mpStatRow(label, value) {
+      const row = element("div", "mp-stat-row");
+      row.append(element("div", "k", label), element("div", "v", String(value ?? "—")));
+      return row;
+    }
+
+    function mpArrow() {
+      return element("div", "mp-flow-arrow", "↓");
+    }
+
+    function mpFlowRow(items) {
+      const row = element("div", "mp-flow-row");
+      items.forEach((text, index) => {
+        if (index > 0) row.append(element("span", "mp-flow-plus", "+"));
+        row.append(element("div", "mp-flow-step", text));
+      });
+      return row;
+    }
+
+    function renderMiniChain(nodes, rels) {
+      const chain = element("div", "mp-chain");
+      nodes.forEach((node, index) => {
+        const box = element("div", "mp-chain-node " + (node.cls || ""));
+        box.append(element("div", "name", node.label));
+        if (node.dim) box.append(element("div", "dim", node.dim));
+        chain.append(box);
+        if (index < rels.length) {
+          const edge = element("div", "mp-chain-edge");
+          edge.append(
+            element("span", "line"),
+            element("span", "dot"),
+            element("span", "rel", rels[index]),
+            element("span", "dot"),
+            element("span", "line")
+          );
+          chain.append(edge);
+        }
+      });
+      return chain;
+    }
+
+    function mpNodeLabels(viz) {
+      const map = {};
+      (viz.nodes || []).forEach((node) => { map[node.entity_id] = node.label || node.entity_id; });
+      return map;
+    }
+
+    function mpRelationLabels(viz) {
+      const map = {};
+      (viz.edges || []).forEach((edge) => {
+        if (!(edge.relation_id in map)) map[edge.relation_id] = edge.label || edge.relation_id;
+      });
+      return map;
+    }
+
+    function buildLayerChain(viz, layer, hop) {
+      const labels = mpNodeLabels(viz);
+      const rels = mpRelationLabels(viz);
+      if (hop === 1) {
+        const msg = (layer?.edge_messages || []).find((m) => labels[m.source] && labels[m.target]);
+        if (!msg) return null;
+        return renderMiniChain(
+          [
+            { label: labels[msg.source] || msg.source, cls: "topic" },
+            { label: labels[msg.target] || msg.target, cls: "target", dim: "接收邻居消息" },
+          ],
+          [rels[msg.relation_id] || msg.relation_id]
+        );
+      }
+      const edges = viz.edges || [];
+      const topics = (viz.nodes || []).filter((node) => node.is_topic).map((node) => node.entity_id);
+      for (const topic of topics) {
+        const first = edges.find((edge) => edge.source === topic);
+        if (!first) continue;
+        const second = edges.find((edge) => edge.source === first.target);
+        if (!second) continue;
+        return renderMiniChain(
+          [
+            { label: labels[topic] || topic, cls: "topic" },
+            { label: labels[first.target] || first.target, cls: "mid", dim: "中间节点" },
+            { label: labels[second.target] || second.target, cls: "target", dim: "二阶邻居" },
+          ],
+          [rels[first.relation_id] || first.relation_id, rels[second.relation_id] || second.relation_id]
+        );
+      }
+      return null;
+    }
+
+    function renderInputSection(viz) {
+      const spec = viz.feature_spec || {};
+      const edges = viz.edges || [];
+      const relationCount = new Set(edges.map((edge) => edge.relation_type ?? edge.relation_id)).size;
+      const sec = mpSection("输入节点表示", `节点数量 ${(viz.nodes || []).length}`);
+      const grid = element("div", "mp-input-grid");
+      grid.append(
+        mpStatCard("节点数量", (viz.nodes || []).length, "证据子图节点"),
+        mpStatCard("边数量", edges.length, "关系三元组"),
+        mpStatCard("关系类型", `${relationCount} 种`, "按关系分类聚合"),
+        mpStatCard("节点初始特征", `${spec.input_dim ?? "?"} 维`, `BERT ${spec.text_dim ?? 128} + DDE ${spec.dde_dim ?? 10}`)
       );
-      summary.hidden = false;
+      sec.body.append(grid);
+      return sec.section;
+    }
+
+    function renderLayerSection(viz, layer, hop) {
+      const isLayer2 = hop === 2;
+      const title = isLayer2 ? "Layer 2 高阶语义传播" : "Layer 1 邻居信息聚合";
+      const badge = isLayer2 ? "2-hop 邻居" : "直接邻居";
+      const sec = mpSection(title, badge);
+      const grid = element("div", "mp-layer-grid");
+
+      const flowCard = element("div", "mp-flow-card");
+      flowCard.append(element("div", "mp-flow-title", isLayer2 ? "跨层传播流程" : "邻居信息聚合流程"));
+      const steps = element("div", "mp-flow-steps");
+      if (isLayer2) {
+        steps.append(
+          mpFlowRow(["第一层更新后的节点表示", "二阶邻居消息"]),
+          mpArrow(),
+          element("div", "mp-flow-step hot", "跨层关系聚合"),
+          mpArrow(),
+          element("div", "mp-flow-step hot", "更新高阶节点表示")
+        );
+      } else {
+        steps.append(
+          mpFlowRow(["节点自身特征", "关系类型邻居消息"]),
+          mpArrow(),
+          element("div", "mp-flow-step hot", "关系聚合"),
+          mpArrow(),
+          element("div", "mp-flow-step hot", "更新节点表示")
+        );
+      }
+      flowCard.append(steps);
+      grid.append(flowCard);
+
+      const stats = element("div", "mp-stats");
+      const chain = buildLayerChain(viz, layer, hop);
+      if (chain) stats.append(chain);
+
+      const stateList = layer?.node_states || [];
+      const messageCount = stateList.reduce((sum, state) => sum + (state.incoming || []).reduce((x, m) => x + m.count, 0), 0);
+      const relLabels = [...new Set((layer?.edge_messages || []).map((m) => mpRelationLabels(viz)[m.relation_id] || m.relation_id))];
+      stats.append(
+        mpStatRow("聚合邻居数量", `${messageCount} 条消息`),
+        mpStatRow("关系类型", relLabels.slice(0, 3).join("、") || "—"),
+        mpStatRow("传播范围", isLayer2 ? "2-hop 邻居" : "1-hop 邻居"),
+        mpStatRow("输出维度", `${viz.feature_spec?.hidden_dim ?? 64} 维节点 Embedding`)
+      );
+      grid.append(stats);
+      sec.body.append(grid);
+      return sec.section;
+    }
+
+    function renderOutputSection(viz) {
+      const sec = mpSection("节点表示学习结果", "Embedding 输出");
+      const grid = element("div", "mp-output-grid");
+      const sorted = [...(viz.nodes || [])].sort((a, b) => Number(b.importance || 0) - Number(a.importance || 0));
+      sorted.slice(0, 3).forEach((node) => {
+        const card = element("div", "mp-output-card");
+        card.append(
+          element("div", "mp-output-name", node.label || node.entity_id),
+          element("div", "mp-output-dim", `Embedding: ${viz.feature_spec?.hidden_dim ?? 64} 维`)
+        );
+        const score = element("div", "mp-output-score");
+        const bar = element("i");
+        bar.style.width = `${Math.max(0, Math.min(100, Number(node.importance || 0) * 100)).toFixed(1)}%`;
+        score.append(bar);
+        card.append(score);
+        grid.append(card);
+      });
+      sec.body.append(grid);
+      sec.body.append(element("div", "mp-connector", "↓ 连接节点评分模块"));
+      return sec.section;
+    }
+
+    function renderMessagePassingV2(viz, answerIds) {
+      const { panel, body } = panelEl("R-GCN 消息传播", "2层关系图卷积");
+      body.append(renderInputSection(viz));
+      const layers = viz.layers || [];
+      layers.slice(0, 2).forEach((layer, index) => {
+        body.append(renderLayerSection(viz, layer, index + 1));
+      });
+      body.append(renderOutputSection(viz));
+      return panel;
+    }
+
+    function renderImportanceScores(candidates) {
+      const { panel, body } = panelEl("GNN 节点重要性评分", `${candidates.length} 个节点`);
+      if (!candidates.length) {
+        body.append(element("div", "empty", "暂未找到候选答案"));
+        return panel;
+      }
+      candidates.forEach((candidate, index) => {
+        const probability = Math.min(1, Math.max(0, Number(candidate.prob) || 0));
+        const row = element("div", "score-row");
+        const track = element("div", "bar-track");
+        const bar = element("div", "bar");
+        bar.style.width = `${(probability * 100).toFixed(1)}%`;
+        track.append(bar);
+        row.append(
+          element("span", "rank" + (index < 3 ? " top" : ""), String(index + 1)),
+          element("div", "score-name", candidate.label || candidate.entity_id || "未知实体"),
+          track,
+          element("div", "probability", `${(probability * 100).toFixed(1)}%`)
+        );
+        body.append(row);
+      });
+      return panel;
+    }
+
+    function renderPathNodes(container, nodes) {
+      nodes.forEach((node, index) => {
+        if (index > 0) container.append(element("span", "arrow", "→"));
+        if (node.entity_id) {
+          container.append(element("span", "entity", node.label || node.entity_id));
+        } else if (node.relation_id) {
+          container.append(element("span", "relation", node.label || node.relation_id));
+        }
+      });
+    }
+
+    function renderExplainablePaths(paths) {
+      const { panel, body } = panelEl("可解释推理路径", `${paths.length} 条`);
+      if (!paths.length) {
+        body.append(element("div", "empty", "暂未生成可解释路径"));
+        return panel;
+      }
+      paths.forEach((path, index) => {
+        const nodes = Array.isArray(path.path) ? path.path : [];
+        const answer = nodes.find((node) => node.entity_id === path.answer_entity_id);
+        const item = element("div", "path");
+        const headRow = element("div", "path-head");
+        headRow.append(element("span", "path-index", String(index + 1)));
+        headRow.append(element("span", "path-answer", answer?.label || path.answer_entity_id || "候选答案"));
+        item.append(headRow);
+        const flow = element("div", "path-flow");
+        renderPathNodes(flow, nodes);
+        item.append(flow);
+        body.append(item);
+      });
+      return panel;
+    }
+
+    function pathText(path) {
+      if (!path || !Array.isArray(path.path)) return "未生成可解释路径";
+      return path.path.map((node) => node.label || node.entity_id || node.relation_id || "").filter(Boolean).join(" → ");
+    }
+
+    function renderFinalAnswer(candidates, paths) {
+      const { panel, body } = panelEl("最终答案", "自然语言结果");
+      if (!candidates.length) {
+        body.append(element("div", "empty", "暂未生成最终答案"));
+        return panel;
+      }
+      const top = candidates[0];
+      const path = paths[0];
+      const box = element("div", "final-answer");
+      box.append(document.createTextNode("根据知识图谱证据子图与 R-GCN 节点评分，最可能的答案是「"));
+      box.append(element("strong", "", top.label || top.entity_id));
+      box.append(document.createTextNode(`」，重要性 ${(Number(top.prob) * 100).toFixed(1)}%。推理依据：${pathText(path)}。`));
+      body.append(box);
+      return panel;
     }
 
     function renderPipeline(micro) {
-      const card = element("section", "card");
-      card.append(cardHeader("软件处理流程", "系统实时运行状态"));
+      const { panel, body } = panelEl("软件处理流程", "系统实时运行状态");
       const pipeline = element("div", "pipeline");
       const spec = micro.feature_spec || {};
       const scorer = micro.scoring?.scorer_type === "mlp" ? "MLP评分" : "规则联合评分";
@@ -252,7 +1182,7 @@
         step.append(element("span", "step-number", String(index + 1)), element("div", "step-name", name), element("div", "step-desc", desc));
         pipeline.append(step);
       });
-      card.append(pipeline);
+      body.append(pipeline);
 
       const metrics = element("div", "metrics");
       [
@@ -265,16 +1195,15 @@
         metric.append(element("div", "metric-label", label), element("div", "metric-value", String(value)), element("div", "metric-detail", detail));
         metrics.append(metric);
       });
-      card.append(metrics);
-      return card;
+      body.append(metrics);
+      return panel;
     }
 
     function renderEvidenceList(micro) {
-      const card = element("section", "card");
-      card.append(cardHeader("Top-K关键证据评分", `评分器：${micro.scoring?.scorer_type === "mlp" ? "MLP" : "启发式联合评分"}`));
+      const { panel, body } = panelEl("Top-K关键证据评分", `评分器：${micro.scoring?.scorer_type === "mlp" ? "MLP" : "启发式联合评分"}`);
       if (!micro.evidence_triples.length) {
-        card.append(element("div", "empty", "没有达到阈值的证据三元组"));
-        return card;
+        body.append(element("div", "empty", "没有达到阈值的证据三元组"));
+        return panel;
       }
       micro.evidence_triples.forEach((evidence, index) => {
         const score = Math.min(1, Math.max(0, Number(evidence.relevance_score) || 0));
@@ -292,85 +1221,36 @@
         bar.style.width = `${(score * 100).toFixed(1)}%`;
         track.append(bar);
         row.append(element("div", "rank", String(index + 1)), tripleBox, track, element("div", "probability", `${(score * 100).toFixed(1)}%`));
-        card.append(row);
+        body.append(row);
       });
-      return card;
+      return panel;
     }
 
-    function renderCandidates(candidates) {
-      const card = element("section", "card");
-      card.append(cardHeader("GNN候选答案排序", `${candidates.length} 个节点`));
-      if (!candidates.length) {
-        card.append(element("div", "empty", "暂未找到候选答案"));
-        return card;
-      }
-      candidates.forEach((candidate) => {
-        const probability = Math.min(1, Math.max(0, Number(candidate.prob) || 0));
-        const row = element("div", "candidate");
-        const track = element("div", "bar-track");
-        const bar = element("div", "bar");
-        bar.style.width = `${(probability * 100).toFixed(1)}%`;
-        track.append(bar);
-        row.append(
-          element("div", "candidate-name", candidate.label || candidate.entity_id || "未知实体"),
-          track,
-          element("div", "probability", `${(probability * 100).toFixed(1)}%`)
-        );
-        card.append(row);
-      });
-      return card;
-    }
-
-    function renderPathNodes(container, nodes) {
-      nodes.forEach((node, index) => {
-        if (index > 0) container.append(element("span", "arrow", "→"));
-        if (node.entity_id) container.append(element("span", "entity", node.label || node.entity_id));
-        else if (node.relation_id) container.append(element("span", "relation", node.label || node.relation_id));
-      });
-    }
-
-    function renderPaths(paths) {
-      const card = element("section", "card");
-      card.append(cardHeader("可解释推理路径", `${paths.length} 条`));
-      if (!paths.length) {
-        card.append(element("div", "empty", "暂未生成可解释路径"));
-        return card;
-      }
-      paths.forEach((path, index) => {
-        const nodes = Array.isArray(path.path) ? path.path : [];
-        const answer = nodes.find((node) => node.entity_id === path.answer_entity_id);
-        const item = element("div", "path");
-        item.append(element("div", "path-answer", `${index + 1}. ${answer?.label || path.answer_entity_id || "候选答案"}`));
-        const content = element("div", "path-content");
-        renderPathNodes(content, nodes);
-        item.append(content);
-        card.append(item);
-      });
-      return card;
-    }
-
+    const curEx = new URLSearchParams(location.search).get("example") || "aspirin";
     async function runInference() {
       rerunButton.disabled = true;
-      summary.hidden = true;
       showLoading();
       try {
-        const response = await fetch(`/api/micro-visualize?example=${encodeURIComponent(currentExample)}`, { headers: { Accept: "application/json" } });
+        const response = await fetch("/api/infer?example=" + curEx, { headers: { Accept: "application/json" } });
         if (!response.ok) throw new Error(`服务器返回 ${response.status}`);
         const data = await response.json();
         const candidates = Array.isArray(data.candidates) ? data.candidates : [];
         const paths = Array.isArray(data.paths) ? data.paths : [];
-        const micro = data.micro_retrieval || { nodes: [], evidence_triples: [], feature_spec: {}, scoring: {} };
+        const viz = data.gnn_visualization;
+        const micro = data.micro_retrieval || { nodes: [], evidence_triples: [], feature_spec: {}, scoring: {}, input_triple_count: 0, selected_triple_count: 0 };
         micro.nodes = Array.isArray(micro.nodes) ? micro.nodes : [];
         micro.evidence_triples = Array.isArray(micro.evidence_triples) ? micro.evidence_triples : [];
-
         questionText.textContent = data.question || "未提供问题文本";
-        renderSummary(candidates.length, paths.length, micro.evidence_triples.length);
-        result.replaceChildren(
-          renderPipeline(micro),
-          renderEvidenceList(micro),
-          renderCandidates(candidates),
-          renderPaths(paths)
-        );
+        const parts = [renderPipeline(micro), renderEvidenceList(micro)];
+        if (viz) {
+          parts.push(renderSubgraphSection(viz, candidates));
+          parts.push(renderFeatureFusion(viz, candidates.map((candidate) => candidate.entity_id)));
+          parts.push(renderMessagePassingV2(viz, candidates.map((candidate) => candidate.entity_id)));
+        }
+        parts.push(renderImportanceScores(candidates));
+        parts.push(renderExplainablePaths(paths));
+        parts.push(renderFinalAnswer(candidates, paths));
+        result.replaceChildren(...parts);
       } catch (error) {
         showError(error instanceof Error ? error.message : "未知错误");
       } finally {
