@@ -42,7 +42,14 @@ def health() -> dict[str, str]:
 def micro_retrieve(body: RetrieveBody) -> dict[str, Any]:
     try:
         triples = [
-            Triple.from_dict(item.model_dump(exclude_none=True), index)
+            Triple.from_dict(
+                (
+                    item.model_dump(exclude_none=True)
+                    if hasattr(item, "model_dump")
+                    else item.dict(exclude_none=True)
+                ),
+                index,
+            )
             for index, item in enumerate(body.triples)
         ]
         return retriever.retrieve(

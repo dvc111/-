@@ -36,11 +36,11 @@ class MicroRetriever:
     def _features(
         self,
         question: str,
+        question_vector: list[float],
         triple: Triple,
         head_dde: list[float],
         tail_dde: list[float],
     ) -> tuple[list[float], dict[str, float]]:
-        question_vector = self.encoder.encode(question)
         semantic = cosine(question_vector, self.encoder.encode(triple.text()))
         relation = max(
             cosine(question_vector, self.encoder.encode(triple.relation_text)),
@@ -51,6 +51,8 @@ class MicroRetriever:
             token_overlap(question, triple.tail_text),
         )
         structure = max(topic_reachability(head_dde), topic_reachability(tail_dde))
+        # 核心创新点：把问题-三元组语义相关度与主题实体中心的 DDE
+        # 结构可达性拼接，让轻量评分器也能识别多跳证据方向。
         compact = [semantic, relation, endpoint, structure]
         features = compact + head_dde + tail_dde
         components = {
@@ -66,9 +68,11 @@ class MicroRetriever:
         # 未训练时也能用于原型展示；每一项都可在返回结果中审计。
         logit = (
             -2.1
-            + 2.1 * components["semantic_score"]
-            + 2.0 * components["relation_score"]
-            + 0.9 * components["endpoint_score"]
+            # 问题中的关系约束比主题实体字面重合更能区分多跳分支；
+            # 例如“作者出生地”不能被主题实体直连的“作品类型”抢占。
+            + 1.5 * components["semantic_score"]
+            + 4.0 * components["relation_score"]
+            + 0.4 * components["endpoint_score"]
             + 0.8 * components["structure_score"]
         )
         return _sigmoid(logit)
@@ -78,8 +82,15 @@ class MicroRetriever:
     ) -> list[list[float]]:
         topic_entities = tuple(topic_entities)
         dde = directional_distance_encoding(triples, topic_entities, self.rounds)
+        question_vector = self.encoder.encode(question)
         return [
-            self._features(question, triple, dde[triple.head], dde[triple.tail])[0]
+            self._features(
+                question,
+                question_vector,
+                triple,
+                dde[triple.head],
+                dde[triple.tail],
+            )[0]
             for triple in triples
         ]
 
@@ -90,19 +101,31 @@ class MicroRetriever:
         triples: list[Triple],
         top_k: int = 5,
         threshold: float = 0.0,
+        precomputed_dde: dict[str, list[float]] | None = None,
     ) -> RetrievalResult:
         if not question.strip():
             raise ValueError("question 不能为空")
         if top_k <= 0:
             raise ValueError("top_k 必须大于 0")
+        if not 0.0 <= threshold <= 1.0:
+            raise ValueError("threshold 必须在 0 到 1 之间")
         topic_entities = tuple(dict.fromkeys(topic_entities))
         if not topic_entities:
             raise ValueError("至少需要一个主题实体")
-        dde = directional_distance_encoding(triples, topic_entities, self.rounds)
+        dde = precomputed_dde or directional_distance_encoding(
+            triples, topic_entities, self.rounds
+        )
+        question_vector = self.encoder.encode(question)
         evidence: list[Evidence] = []
+        # 核心创新点：三元组相互独立打分，可一次性并行筛选任意形态子图，
+        # 不受逐跳贪心路径搜索约束；这里保留简单循环以兼容纯 Python 环境。
         for triple in triples:
             features, components = self._features(
-                question, triple, dde[triple.head], dde[triple.tail]
+                question,
+                question_vector,
+                triple,
+                dde[triple.head],
+                dde[triple.tail],
             )
             score = self.model.predict(features) if self.model else self._fallback_score(components)
             if score >= threshold:

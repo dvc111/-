@@ -115,12 +115,22 @@ def build_micro_evidence_subgraph(
 
     if top_k <= 0:
         raise ValueError("top_k 必须大于 0")
+    if not 0.0 <= threshold <= 1.0:
+        raise ValueError("threshold 必须在 0 到 1 之间")
     retriever = retriever or MicroRetriever()
     if require_mlp and retriever.model is None:
         raise ValueError("正式 MLP 模式已启用，但没有加载模型文件")
     question_id, question_text, topics, triples, nodes = parse_macro_subgraph(payload)
-    result = retriever.retrieve(question_text, topics, triples, top_k, threshold)
     dde = directional_distance_encoding(triples, topics, retriever.rounds)
+    # DDE 只计算一次，并同时供三元组评分和 GNN 交接结果复用。
+    result = retriever.retrieve(
+        question_text,
+        topics,
+        triples,
+        top_k,
+        threshold,
+        precomputed_dde=dde,
+    )
 
     selected_entities: set[str] = set()
     evidence_triples: list[dict[str, Any]] = []
@@ -160,6 +170,10 @@ def build_micro_evidence_subgraph(
         evidence.triple.relation: evidence.triple.relation_text
         for evidence in result.evidence
     }
+    relation_to_id = {
+        relation_id: index
+        for index, relation_id in enumerate(sorted(selected_relation_labels))
+    }
     dde_dim = 2 + 4 * retriever.rounds
     return {
         "schema_version": SCHEMA_VERSION,
@@ -169,8 +183,10 @@ def build_micro_evidence_subgraph(
         "node_features": node_features,
         "entity_dde": entity_dde,
         "relation_labels": selected_relation_labels,
+        "relation_to_id": relation_to_id,
         "feature_spec": {
             "dde_dim": dde_dim,
+            "dde_block_dim": 2,
             "dde_rounds": retriever.rounds,
             "dde_order": [
                 "topic_one_hot",

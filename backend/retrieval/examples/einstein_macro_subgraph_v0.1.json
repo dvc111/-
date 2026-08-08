@@ -1,0 +1,28 @@
+{
+  "schema_version": "0.1",
+  "question_id": "q_einstein_001",
+  "question_text": "爱因斯坦出生国家的官方语言是什么？",
+  "topic_entities": ["Q_EINSTEIN"],
+  "relation_labels": {
+    "R_BIRTH_COUNTRY": "出生国家",
+    "R_OFFICIAL_LANGUAGE": "官方语言",
+    "R_OCCUPATION": "职业",
+    "R_CONTINENT": "所属洲"
+  },
+  "macro_subgraph": {
+    "nodes": [
+      {"entity_id": "Q_EINSTEIN", "label": "阿尔伯特·爱因斯坦", "is_topic": true},
+      {"entity_id": "Q_GERMANY", "label": "德国", "is_topic": false},
+      {"entity_id": "Q_GERMAN", "label": "德语", "is_topic": false},
+      {"entity_id": "Q_PHYSICIST", "label": "物理学家", "is_topic": false},
+      {"entity_id": "Q_EUROPE", "label": "欧洲", "is_topic": false}
+    ],
+    "triples": [
+      ["Q_EINSTEIN", "R_BIRTH_COUNTRY", "Q_GERMANY"],
+      ["Q_GERMANY", "R_OFFICIAL_LANGUAGE", "Q_GERMAN"],
+      ["Q_EINSTEIN", "R_OCCUPATION", "Q_PHYSICIST"],
+      ["Q_GERMANY", "R_CONTINENT", "Q_EUROPE"]
+    ]
+  },
+  "max_hops": 3
+}

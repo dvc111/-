@@ -9,7 +9,11 @@ from .models import Triple
 def shortest_path_triple_ids(
     triples: list[Triple], topic_entities: Iterable[str], answer_entities: Iterable[str]
 ) -> set[int]:
-    """用主题实体到答案实体的最短路径生成弱监督正样本。"""
+    """用主题实体到答案实体的最短路径生成弱监督正样本。
+
+    核心创新点：不要求人工逐条标注证据，利用已知问答对在局部子图上的
+    最短路径自动构造正样本，其余候选作为负样本训练轻量 MLP。
+    """
 
     adjacency: dict[str, list[tuple[str, int]]] = defaultdict(list)
     for index, triple in enumerate(triples):
@@ -52,4 +56,3 @@ def shortest_path_triple_ids(
                     seen.add(parent)
                     stack.append(parent)
     return positive_ids
-
