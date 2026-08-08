@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
   <meta charset="UTF-8">
@@ -9,14 +9,18 @@
       --accent: #4f46e5;
       --accent-2: #0ea5e9;
       --accent-soft: #eef2ff;
+      --blue-light: #eff6ff;
+      --blue-border: #bfdbfe;
+      --blue-text: #1d4ed8;
+      --green-soft: #ecfdf5;
+      --green-text: #059669;
       --text: #1a2233;
       --muted: #64748b;
       --line: #e2e8f0;
       --surface: #ffffff;
       --background: #f4f6fb;
       --danger: #b42318;
-      --success: #059669;
-      --shadow: 0 1px 3px rgba(15, 23, 42, .06), 0 4px 12px rgba(15, 23, 42, .05);
+      --shadow: 0 1px 3px rgba(15, 23, 42, .04), 0 2px 8px rgba(15, 23, 42, .04);
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -28,172 +32,227 @@
       min-height: 100vh;
     }
 
+    /* ── 顶栏 ── */
     .topbar {
-      background: linear-gradient(120deg, #312e81, #4f46e5 55%, #0ea5e9);
-      padding: 18px 24px;
+      background: #312e81;
+      padding: 16px 24px;
       display: flex;
       align-items: center;
       justify-content: space-between;
       gap: 16px;
-      box-shadow: 0 2px 10px rgba(79, 70, 229, .18);
       position: sticky;
       top: 0;
       z-index: 10;
     }
-
     .topbar-left { display: flex; align-items: center; gap: 12px; min-width: 0; }
     .logo {
-      width: 36px; height: 36px; flex-shrink: 0;
+      width: 34px; height: 34px; flex-shrink: 0;
       display: grid; place-items: center;
-      background: rgba(255,255,255,.16);
-      border: 1px solid rgba(255,255,255,.25);
-      border-radius: 10px;
-      color: #fff;
-      font-size: 17px;
-    }
-    .topbar h1 { color: #fff; font-size: 18px; font-weight: 650; white-space: nowrap; }
-    .topbar .subtitle { color: rgba(255,255,255,.78); font-size: 12px; margin-top: 2px; white-space: nowrap; }
-
-    .topbar-right { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
-    .q-btn {
-      min-width: 40px; height: 34px; padding: 0 12px;
-      border: 1px solid rgba(255,255,255,.28);
+      background: rgba(255,255,255,.14);
       border-radius: 8px;
-      background: rgba(255,255,255,.1);
+      color: #fff;
+      font-size: 16px; font-weight: 700;
+    }
+    .topbar h1 { color: #fff; font-size: 17px; font-weight: 650; white-space: nowrap; }
+    .topbar .subtitle { color: rgba(255,255,255,.72); font-size: 11px; margin-top: 2px; white-space: nowrap; }
+    .topbar-right { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+    .q-btn {
+      min-width: 38px; height: 32px; padding: 0 12px;
+      border: 1px solid rgba(255,255,255,.22);
+      border-radius: 8px;
+      background: rgba(255,255,255,.08);
       color: #fff;
       font-size: 13px; font-weight: 600;
       cursor: pointer;
       transition: all .15s ease;
     }
-    .q-btn:hover { background: rgba(255,255,255,.22); }
+    .q-btn:hover { background: rgba(255,255,255,.2); }
     .q-btn.active { background: #fff; color: var(--accent); border-color: #fff; }
 
     .wrap {
-      width: min(760px, 100%);
+      width: min(780px, 100%);
       margin: 0 auto;
-      padding: 20px 16px 36px;
+      padding: 18px 16px 36px;
     }
 
-    .panel {
+    /* ── 通用卡片 ── */
+    .card {
       background: var(--surface);
       border: 1px solid var(--line);
-      border-radius: 10px;
+      border-radius: 14px;
       box-shadow: var(--shadow);
       margin-bottom: 14px;
       overflow: hidden;
     }
-
-    .panel-head {
-      padding: 12px 16px;
+    .card-head {
+      padding: 14px 18px;
       display: flex;
       align-items: center;
       justify-content: space-between;
       gap: 10px;
       border-bottom: 1px solid var(--line);
     }
-
-    .panel-title {
+    .card-title {
       display: flex; align-items: center; gap: 8px;
       font-size: 13px; font-weight: 700;
-      color: var(--muted);
-      letter-spacing: .02em;
+      color: var(--text);
     }
-
-    .panel-title .dot {
+    .card-title .dot {
       width: 8px; height: 8px; border-radius: 50%;
       background: var(--accent);
       flex-shrink: 0;
     }
+    .card-body { padding: 18px; }
 
+    /* badge */
     .badge {
-      padding: 3px 9px;
+      padding: 3px 10px;
       border-radius: 999px;
       font-size: 11px; font-weight: 600;
     }
     .badge.accent { color: var(--accent); background: var(--accent-soft); }
-    .badge.success { color: var(--success); background: #ecfdf5; }
+    .badge.success { color: var(--green-text); background: var(--green-soft); }
+    .badge.muted { color: var(--muted); background: #f1f5f9; }
 
-    .panel-body { padding: 16px; }
-
-    .question {
+    /* ── 区块1：用户问题 ── */
+    .q-card-body {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 16px;
+    }
+    .q-card-body .question {
       font-size: 16px;
-      font-weight: 600;
+      font-weight: 650;
       line-height: 1.7;
-    }
-
-    .macro-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 10px;
-    }
-    .macro-item {
-      padding: 12px;
-      border: 1px solid var(--line);
-      border-radius: 8px;
-      background: #fafbfe;
+      flex: 1;
       min-width: 0;
     }
-    .macro-item .label {
+    .q-tag {
+      flex-shrink: 0;
+      padding: 4px 12px;
+      border-radius: 999px;
       font-size: 11px;
-      color: var(--muted);
-      margin-bottom: 5px;
-      font-weight: 600;
-    }
-    .macro-item .value {
-      font-size: 13px;
-      font-weight: 600;
-      line-height: 1.55;
-      overflow-wrap: anywhere;
+      font-weight: 650;
+      color: var(--accent);
+      background: var(--accent-soft);
+      white-space: nowrap;
     }
 
+    /* ── 区块2：宏观检索概览 ── */
+    /* 流程步骤 */
+    .flow-steps {
+      display: flex;
+      align-items: flex-start;
+      gap: 0;
+      margin-bottom: 18px;
+    }
+    .flow-step {
+      flex: 1;
+      min-width: 0;
+      padding: 14px 12px;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: #fafbfe;
+      text-align: center;
+      position: relative;
+    }
+    .flow-step-icon {
+      width: 34px; height: 34px;
+      margin: 0 auto 8px;
+      display: grid; place-items: center;
+      border-radius: 8px;
+      background: var(--accent-soft);
+      font-size: 16px;
+    }
+    .flow-step-label {
+      font-size: 12px;
+      font-weight: 750;
+      color: var(--text);
+      margin-bottom: 4px;
+    }
+    .flow-step-desc {
+      font-size: 10px;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+    .flow-arrow-wrap {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 32px;
+      flex-shrink: 0;
+      padding-top: 20px;
+    }
+    .flow-arrow-icon {
+      color: var(--accent);
+      font-size: 14px;
+      font-weight: 700;
+    }
+
+    /* 统计小卡片 */
+    .stat-row {
+      display: flex;
+      gap: 10px;
+    }
+    .stat-card {
+      flex: 1;
+      min-width: 0;
+      padding: 12px 14px;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      background: #fafbfe;
+      text-align: center;
+    }
+    .stat-card .stat-value {
+      font-size: 20px;
+      font-weight: 850;
+      color: var(--text);
+    }
+    .stat-card .stat-label {
+      font-size: 10px;
+      color: var(--muted);
+      font-weight: 650;
+      margin-top: 4px;
+    }
+    .stat-card .stat-sub {
+      font-size: 10px;
+      color: var(--muted);
+      margin-top: 2px;
+    }
+
+    /* ── 区块3：宏观子图裁剪结果实体卡片 ── */
+    /* 复用 .feat-grid .feat-card .feat-source .importance 等样式 */
+
+    /* ── 候选答案 ── */
     .candidate {
       display: grid;
-      grid-template-columns: 30px minmax(80px, 120px) 1fr 52px;
-      gap: 12px;
+      grid-template-columns: 28px minmax(80px, 110px) 1fr 52px;
+      gap: 10px;
       align-items: center;
       padding: 10px 0;
       border-bottom: 1px solid var(--line);
     }
     .candidate:last-child { border-bottom: 0; }
-
     .rank {
-      width: 24px; height: 24px;
+      width: 22px; height: 22px;
       display: grid; place-items: center;
       border-radius: 50%;
       background: #f1f5f9;
       color: var(--muted);
-      font-size: 11px; font-weight: 700;
+      font-size: 10px; font-weight: 700;
       flex-shrink: 0;
     }
     .rank.top { background: var(--accent); color: #fff; }
-
     .candidate-name { overflow-wrap: anywhere; font-size: 13px; font-weight: 650; }
-
-    .bar-track {
-      height: 8px;
-      overflow: hidden;
-      background: #eef1f6;
-      border-radius: 999px;
-    }
-    .bar {
-      height: 100%;
-      background: linear-gradient(90deg, var(--accent), var(--accent-2));
-      border-radius: inherit;
-      transition: width .45s ease;
-    }
-
+    .bar-track { height: 7px; overflow: hidden; background: #eef1f6; border-radius: 999px; }
+    .bar { height: 100%; background: var(--accent); border-radius: inherit; transition: width .45s ease; }
     .probability { color: var(--muted); font-size: 12px; text-align: right; font-weight: 650; }
 
+    /* ── 推理路径 ── */
     .path { padding: 8px 0 14px; }
     .path + .path { padding-top: 16px; border-top: 1px dashed var(--line); }
-
-    .path-head {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      margin-bottom: 12px;
-    }
-
+    .path-head { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; }
     .path-index {
       width: 22px; height: 22px;
       display: grid; place-items: center;
@@ -203,23 +262,8 @@
       font-size: 11px; font-weight: 700;
       flex-shrink: 0;
     }
-
-    .path-answer {
-      color: var(--text);
-      font-size: 13px;
-      font-weight: 700;
-      flex: 1;
-      min-width: 0;
-      overflow-wrap: anywhere;
-    }
-
-    .path-score {
-      color: var(--muted);
-      font-size: 11px;
-      font-weight: 600;
-      flex-shrink: 0;
-    }
-
+    .path-answer { color: var(--text); font-size: 13px; font-weight: 700; flex: 1; min-width: 0; overflow-wrap: anywhere; }
+    .path-score { color: var(--muted); font-size: 11px; font-weight: 600; flex-shrink: 0; }
     .path-flow {
       position: relative;
       display: flex;
@@ -231,7 +275,6 @@
       padding-left: 10px;
       border-left: 3px solid var(--line);
     }
-
     .entity {
       font-weight: 650;
       color: var(--text);
@@ -241,20 +284,8 @@
       border-radius: 7px;
       white-space: nowrap;
     }
-
-    .entity.topic {
-      background: #eff6ff;
-      border-color: #bfdbfe;
-      color: #1d4ed8;
-    }
-
-    .entity.answer {
-      background: #ecfdf5;
-      border-color: #a7f3d0;
-      color: var(--success);
-      font-weight: 700;
-    }
-
+    .entity.topic { background: var(--blue-light); border-color: var(--blue-border); color: var(--blue-text); }
+    .entity.answer { background: var(--green-soft); border-color: #a7f3d0; color: var(--green-text); font-weight: 700; }
     .relation {
       color: var(--muted);
       font-size: 11px;
@@ -264,17 +295,11 @@
       border-radius: 999px;
       white-space: nowrap;
     }
-
     .arrow { color: #a5b0c0; font-size: 11px; }
 
-    .empty, .state {
-      padding: 30px 10px;
-      color: var(--muted);
-      font-size: 13px;
-      text-align: center;
-    }
+    /* ── 状态 ── */
+    .empty, .state { padding: 30px 10px; color: var(--muted); font-size: 13px; text-align: center; }
     .error { color: var(--danger); }
-
     .spinner {
       display: block;
       width: 28px; height: 28px;
@@ -284,245 +309,146 @@
       border-radius: 50%;
       animation: spin .7s linear infinite;
     }
+    @keyframes spin { to { transform: rotate(360deg); } }
 
-    .footer {
-      display: flex;
-      gap: 10px;
-      margin-top: 4px;
-    }
-
+    /* ── 底部按钮 ── */
+    .footer { display: flex; gap: 10px; margin-top: 4px; }
     .button {
       flex: 1;
       padding: 11px 16px;
       color: #fff;
-      background: linear-gradient(90deg, var(--accent), var(--accent-2));
+      background: var(--accent);
       border: 0;
-      border-radius: 8px;
+      border-radius: 10px;
       font: inherit;
       font-size: 13px;
       font-weight: 650;
       cursor: pointer;
       transition: opacity .15s ease, transform .1s ease;
     }
-    .button:hover { opacity: .9; }
+    .button:hover { opacity: .88; }
     .button:active { transform: translateY(1px); }
-    .button:disabled { cursor: wait; opacity: .55; }
+    .button:disabled { cursor: wait; opacity: .5; }
+    .button.secondary { background: #fff; color: var(--text); border: 1px solid var(--line); }
 
-    .button.secondary {
-      background: #fff;
-      color: var(--text);
-      border: 1px solid var(--line);
-    }
-
-    @keyframes spin { to { transform: rotate(360deg); } }
-
-    @media (max-width: 600px) {
-      .topbar { padding: 14px 16px; flex-direction: column; align-items: stretch; }
-      .topbar-right { justify-content: flex-start; }
-      .macro-grid { grid-template-columns: 1fr; }
-      .candidate { grid-template-columns: 26px minmax(72px, 96px) 1fr 46px; gap: 8px; }
-      .wrap { padding: 14px 12px 28px; }
-      .panel-body { padding: 14px; }
-    }
-
-    @media (prefers-reduced-motion: reduce) {
-      .bar, .spinner { transition: none; animation: none; }
-    }
-
-    .viz-tabs {
-      display: flex;
-      gap: 6px;
-      flex-wrap: wrap;
-    }
-
+    /* ── GNN 子图可视化 ── */
+    .viz-tabs { display: flex; gap: 6px; flex-wrap: wrap; }
     .viz-tab {
-      min-width: 64px;
-      height: 30px;
-      padding: 0 12px;
-      border: 1px solid var(--line);
-      border-radius: 8px;
-      background: #fff;
-      color: var(--muted);
-      font-size: 12px;
-      font-weight: 650;
-      cursor: pointer;
+      min-width: 64px; height: 30px; padding: 0 12px;
+      border: 1px solid var(--line); border-radius: 8px;
+      background: #fff; color: var(--muted);
+      font-size: 12px; font-weight: 650; cursor: pointer;
     }
     .viz-tab.active { background: var(--accent); border-color: var(--accent); color: #fff; }
-
     .gnn-graph-wrap { margin-top: 4px; }
     .gnn-svg {
-      display: block;
-      width: 100%;
-      height: auto;
+      display: block; width: 100%; height: auto;
       background: #fbfcfe;
-      border: 1px solid var(--line);
-      border-radius: 8px;
+      border: 1px solid var(--line); border-radius: 10px;
     }
     .graph-legend { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 10px; }
     .legend-item { display: inline-flex; align-items: center; gap: 6px; color: var(--muted); font-size: 11px; }
     .legend-line { width: 22px; height: 3px; border-radius: 2px; }
     .legend-node { width: 10px; height: 10px; border-radius: 50%; border: 2px solid var(--line); }
     .legend-node.topic { border-color: var(--accent); background: var(--accent); }
-    .legend-node.answer { border-color: var(--success); background: var(--success); }
+    .legend-node.answer { border-color: var(--green-text); background: var(--green-text); }
     .gnn-node { cursor: pointer; transition: opacity .15s ease; }
     .gnn-node.selected circle { stroke: #111827; stroke-width: 2.5; }
     .gnn-label { font-size: 11px; font-weight: 600; paint-order: stroke; stroke: #fff; stroke-width: 3px; }
 
+    /* ── 特征融合 ── */
     .fusion-flow {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 6px;
-      margin-bottom: 16px;
-      padding: 14px 16px;
-      border: 1px solid var(--line);
-      border-radius: 10px;
-      background: linear-gradient(135deg, #f8faff, #fbfcfe);
+      display: flex; flex-direction: column; align-items: center; gap: 6px;
+      margin-bottom: 16px; padding: 14px 16px;
+      border: 1px solid var(--line); border-radius: 12px; background: #fafbfe;
     }
     .flow-sources { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; }
     .flow-source {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 3px;
-      min-width: 108px;
-      padding: 10px 12px;
-      border: 1px solid #dfe6fb;
-      border-radius: 8px;
-      background: #fff;
+      display: flex; flex-direction: column; align-items: center; gap: 3px;
+      min-width: 108px; padding: 10px 12px;
+      border: 1px solid #dfe6fb; border-radius: 10px; background: #fff;
     }
     .flow-icon {
-      width: 26px; height: 26px;
-      display: grid; place-items: center;
-      border-radius: 8px;
-      color: #fff;
-      font-size: 12px;
-      font-weight: 800;
+      width: 26px; height: 26px; display: grid; place-items: center;
+      border-radius: 8px; color: #fff; font-size: 12px; font-weight: 800;
     }
-    .flow-source.semantic .flow-icon { background: linear-gradient(135deg, #6366f1, #8b5cf6); }
-    .flow-source.structure .flow-icon { background: linear-gradient(135deg, #0ea5e9, #06b6d4); }
-    .flow-source.attr .flow-icon { background: linear-gradient(135deg, #f59e0b, #f97316); }
+    .flow-source.semantic .flow-icon { background: #6366f1; }
+    .flow-source.structure .flow-icon { background: #0ea5e9; }
+    .flow-source.attr .flow-icon { background: #f59e0b; }
     .flow-name { color: var(--text); font-size: 12px; font-weight: 700; white-space: nowrap; }
     .flow-dim { color: var(--muted); font-size: 10px; }
-    .flow-arrow { color: var(--accent); font-size: 16px; font-weight: 800; line-height: 1; }
+    .flow-arrow-icon { color: var(--accent); font-size: 16px; font-weight: 800; line-height: 1; }
     .flow-center {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      padding: 9px 16px;
-      border-radius: 8px;
-      color: #fff;
-      font-size: 13px;
-      font-weight: 750;
-      background: linear-gradient(90deg, var(--accent), var(--accent-2));
-      box-shadow: 0 4px 12px rgba(79, 70, 229, .22);
+      display: flex; align-items: center; gap: 8px;
+      padding: 9px 16px; border-radius: 8px;
+      color: #fff; font-size: 13px; font-weight: 750;
+      background: var(--accent);
     }
-    .flow-center.rgcn { background: linear-gradient(90deg, #0f172a, #334155); box-shadow: 0 4px 12px rgba(15, 23, 42, .2); }
+    .flow-center.rgcn { background: #1e293b; }
 
-    .feat-grid {
-      display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 12px;
-    }
+    .feat-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
     .feat-card {
-      border: 1px solid var(--line);
-      border-radius: 10px;
-      background: #fff;
-      overflow: hidden;
-      box-shadow: 0 1px 2px rgba(15, 23, 42, .04);
+      border: 1px solid var(--line); border-radius: 12px;
+      background: #fff; overflow: hidden;
     }
     .feat-card-head {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 10px;
-      padding: 12px 14px;
-      border-bottom: 1px solid var(--line);
-      background: linear-gradient(120deg, #f8faff, #ffffff);
+      display: flex; align-items: center; justify-content: space-between; gap: 10px;
+      padding: 12px 14px; border-bottom: 1px solid var(--line); background: #fafbfe;
     }
     .feat-card-name { font-size: 14px; font-weight: 750; overflow-wrap: anywhere; }
     .type-badge {
-      padding: 3px 8px;
-      border-radius: 999px;
-      font-size: 10px;
-      font-weight: 700;
-      white-space: nowrap;
+      padding: 3px 8px; border-radius: 999px;
+      font-size: 10px; font-weight: 700; white-space: nowrap;
     }
     .type-badge.topic { background: var(--accent-soft); color: var(--accent); }
-    .type-badge.answer { background: #ecfdf5; color: var(--success); }
+    .type-badge.answer { background: var(--green-soft); color: var(--green-text); }
     .feat-card-body { display: flex; flex-direction: column; gap: 10px; padding: 12px 14px; }
     .feat-source {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      padding: 9px 10px;
-      border: 1px solid var(--line);
-      border-radius: 8px;
-      background: #fafbfe;
+      display: flex; align-items: center; gap: 10px;
+      padding: 9px 10px; border: 1px solid var(--line); border-radius: 10px; background: #fafbfe;
     }
     .feat-source-icon {
-      width: 30px; height: 30px;
-      display: grid; place-items: center;
-      border-radius: 8px;
-      color: #fff;
-      font-size: 12px;
-      font-weight: 800;
-      flex-shrink: 0;
+      width: 30px; height: 30px; display: grid; place-items: center;
+      border-radius: 8px; color: #fff; font-size: 12px; font-weight: 800; flex-shrink: 0;
     }
-    .feat-source.semantic .feat-source-icon { background: linear-gradient(135deg, #6366f1, #8b5cf6); }
-    .feat-source.structure .feat-source-icon { background: linear-gradient(135deg, #0ea5e9, #06b6d4); }
-    .feat-source.attr .feat-source-icon { background: linear-gradient(135deg, #f59e0b, #f97316); }
+    .feat-source.semantic .feat-source-icon { background: #6366f1; }
+    .feat-source.structure .feat-source-icon { background: #0ea5e9; }
+    .feat-source.attr .feat-source-icon { background: #f59e0b; }
     .feat-source-info { min-width: 0; flex: 1; display: flex; flex-direction: column; gap: 2px; }
     .feat-source-label { color: var(--muted); font-size: 10px; font-weight: 600; }
     .feat-source-value { color: var(--text); font-size: 12px; font-weight: 750; overflow-wrap: anywhere; }
     .feat-source-dim { color: var(--muted); font-size: 10px; }
     .importance {
       padding: 9px 10px;
-      border: 1px solid rgba(5, 150, 105, .22);
-      border-radius: 8px;
-      background: linear-gradient(120deg, rgba(5, 150, 105, .08), rgba(14, 165, 233, .08));
+      border: 1px solid rgba(5,150,105,.2); border-radius: 10px;
+      background: #fafdfc;
     }
     .importance-head {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 10px;
-      margin-bottom: 6px;
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 10px; margin-bottom: 6px;
     }
     .importance-label { color: var(--muted); font-size: 10px; font-weight: 650; }
-    .importance-value { color: var(--success); font-size: 12px; font-weight: 800; }
+    .importance-value { color: var(--green-text); font-size: 12px; font-weight: 800; }
     .importance-track { height: 6px; overflow: hidden; background: #eef1f6; border-radius: 999px; }
-    .importance-fill {
-      height: 100%;
-      border-radius: inherit;
-      background: linear-gradient(90deg, var(--success), var(--accent-2));
-      transition: width .4s ease;
-    }
+    .importance-fill { height: 100%; border-radius: inherit; background: var(--green-text); transition: width .4s ease; }
 
+    /* ── 消息传播 ── */
     .mp-controls { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 10px; }
     .mp-play {
-      margin-left: auto;
-      height: 30px;
-      padding: 0 12px;
-      border: 1px solid var(--line);
-      border-radius: 8px;
-      background: #fff;
-      color: var(--text);
-      font-size: 12px;
-      font-weight: 650;
-      cursor: pointer;
+      margin-left: auto; height: 30px; padding: 0 12px;
+      border: 1px solid var(--line); border-radius: 8px;
+      background: #fff; color: var(--text);
+      font-size: 12px; font-weight: 650; cursor: pointer;
     }
     .mp-graph { position: relative; }
     .mp-edge { transition: opacity .2s ease; }
-    .mp-particle { filter: drop-shadow(0 1px 2px rgba(15, 23, 42, .3)); }
+    .mp-particle { filter: drop-shadow(0 1px 2px rgba(15,23,42,.3)); }
     .mp-detail { max-height: 340px; overflow-y: auto; margin-top: 12px; border-top: 1px solid var(--line); padding-top: 4px; }
     .node-msg-row {
       display: grid;
-      grid-template-columns: 150px minmax(0, 1fr) 130px;
-      gap: 12px;
-      align-items: center;
-      padding: 8px 0;
-      border-bottom: 1px dashed var(--line);
+      grid-template-columns: 150px minmax(0,1fr) 130px;
+      gap: 12px; align-items: center;
+      padding: 8px 0; border-bottom: 1px dashed var(--line);
     }
     .node-msg-row:last-child { border-bottom: 0; }
     .node-msg-name { overflow-wrap: anywhere; font-size: 12px; font-weight: 650; }
@@ -534,160 +460,107 @@
     .msg-count { color: var(--muted); font-size: 10px; text-align: right; }
     .node-msg-stat { color: var(--muted); font-size: 10px; line-height: 1.7; text-align: right; white-space: pre-line; }
 
-    @media (max-width: 640px) {
-      .feat-grid { grid-template-columns: 1fr; }
-      .node-msg-row { grid-template-columns: 1fr; gap: 6px; }
-      .node-msg-stat { text-align: left; }
-    }
-
+    /* ── R-GCN V2 ── */
     .mp-section {
-      border: 1px solid var(--line);
-      border-radius: 10px;
-      background: #fff;
-      overflow: hidden;
-      margin-bottom: 14px;
+      border: 1px solid var(--line); border-radius: 12px;
+      background: #fff; overflow: hidden; margin-bottom: 14px;
     }
     .mp-section-head {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 10px;
-      padding: 11px 14px;
-      border-bottom: 1px solid var(--line);
-      background: linear-gradient(120deg, #f8faff, #ffffff);
+      display: flex; align-items: center; justify-content: space-between; gap: 10px;
+      padding: 11px 14px; border-bottom: 1px solid var(--line); background: #fafbfe;
     }
     .mp-section-title { color: var(--text); font-size: 13px; font-weight: 750; }
     .mp-section-body { padding: 14px; }
-
-    .mp-input-grid {
-      display: grid;
-      grid-template-columns: repeat(4, minmax(0, 1fr));
-      gap: 10px;
-    }
+    .mp-input-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; }
     .mp-stat {
-      padding: 12px;
-      border: 1px solid var(--line);
-      border-radius: 8px;
-      background: #fafbfe;
+      padding: 12px; border: 1px solid var(--line); border-radius: 10px; background: #fafbfe;
     }
     .mp-stat-label { color: var(--muted); font-size: 10px; font-weight: 650; margin-bottom: 6px; }
     .mp-stat-value { color: var(--text); font-size: 16px; font-weight: 850; }
     .mp-stat-sub { color: var(--muted); font-size: 10px; margin-top: 4px; }
-
     .mp-layer-grid {
       display: grid;
-      grid-template-columns: minmax(240px, 1fr) minmax(260px, 1.2fr);
-      gap: 14px;
-      align-items: start;
+      grid-template-columns: minmax(240px,1fr) minmax(260px,1.2fr);
+      gap: 14px; align-items: start;
     }
-    .mp-flow-card {
-      border: 1px solid var(--line);
-      border-radius: 8px;
-      padding: 12px;
-      background: #fafbfe;
-    }
+    .mp-flow-card { border: 1px solid var(--line); border-radius: 10px; padding: 12px; background: #fafbfe; }
     .mp-flow-title { color: var(--muted); font-size: 10px; font-weight: 700; margin-bottom: 10px; }
     .mp-flow-steps { display: flex; flex-direction: column; align-items: center; gap: 5px; }
     .mp-flow-row { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; }
     .mp-flow-step {
-      padding: 8px 12px;
-      border: 1px solid #dfe6fb;
-      border-radius: 8px;
-      background: #fff;
-      color: var(--text);
-      font-size: 12px;
-      font-weight: 700;
-      text-align: center;
+      padding: 8px 12px; border: 1px solid #dfe6fb; border-radius: 10px;
+      background: #fff; color: var(--text); font-size: 12px; font-weight: 700; text-align: center;
     }
-    .mp-flow-step.hot {
-      background: linear-gradient(90deg, var(--accent), var(--accent-2));
-      border-color: transparent;
-      color: #fff;
-    }
+    .mp-flow-step.hot { background: var(--accent); border-color: transparent; color: #fff; }
     .mp-flow-plus { color: var(--muted); font-size: 12px; font-weight: 800; align-self: center; }
-    .mp-flow-arrow { color: var(--accent); font-size: 15px; font-weight: 800; line-height: 1; }
-
+    .mp-flow-arrow-down { color: var(--accent); font-size: 15px; font-weight: 800; line-height: 1; }
     .mp-chain { display: flex; flex-direction: column; align-items: center; gap: 6px; }
     .mp-chain-node {
-      min-width: 160px;
-      padding: 10px 14px;
-      border: 1px solid var(--line);
-      border-radius: 8px;
-      background: #fff;
-      text-align: center;
+      min-width: 160px; padding: 10px 14px;
+      border: 1px solid var(--line); border-radius: 10px;
+      background: #fff; text-align: center;
       animation: mpNodeGlow 2.6s ease-in-out infinite;
     }
     .mp-chain-node.topic { border-color: var(--accent); background: var(--accent-soft); color: var(--accent); }
-    .mp-chain-node.mid { border-color: var(--accent-2); background: #eff6ff; color: #1d4ed8; }
-    .mp-chain-node.target { border-color: var(--success); background: #ecfdf5; color: var(--success); }
+    .mp-chain-node.mid { border-color: var(--accent-2); background: var(--blue-light); color: var(--blue-text); }
+    .mp-chain-node.target { border-color: var(--green-text); background: var(--green-soft); color: var(--green-text); }
     .mp-chain-node .name { font-size: 13px; font-weight: 800; }
     .mp-chain-node .dim { font-size: 10px; color: var(--muted); margin-top: 3px; }
     .mp-chain-edge { display: flex; align-items: center; gap: 6px; color: var(--muted); font-size: 11px; font-weight: 650; }
     .mp-chain-edge .line { width: 26px; height: 2px; background: var(--accent); border-radius: 2px; }
     .mp-chain-edge .dot {
-      width: 7px; height: 7px;
-      border-radius: 50%;
-      background: var(--accent);
+      width: 7px; height: 7px; border-radius: 50%; background: var(--accent);
       animation: mpPulse 1.3s ease-in-out infinite;
     }
     .mp-chain-edge .rel { white-space: nowrap; }
-
     .mp-stats { display: flex; flex-direction: column; gap: 10px; }
     .mp-stat-row {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 12px;
-      padding: 10px 12px;
-      border: 1px solid var(--line);
-      border-radius: 8px;
-      background: #fff;
+      display: flex; align-items: center; justify-content: space-between; gap: 12px;
+      padding: 10px 12px; border: 1px solid var(--line); border-radius: 10px; background: #fff;
     }
     .mp-stat-row .k { color: var(--muted); font-size: 11px; font-weight: 650; }
     .mp-stat-row .v { color: var(--text); font-size: 12px; font-weight: 800; text-align: right; }
-
-    .mp-output-grid {
-      display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 10px;
-    }
-    .mp-output-card {
-      padding: 12px;
-      border: 1px solid var(--line);
-      border-radius: 8px;
-      background: #fafbfe;
-    }
+    .mp-output-grid { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 10px; }
+    .mp-output-card { padding: 12px; border: 1px solid var(--line); border-radius: 10px; background: #fafbfe; }
     .mp-output-name { font-size: 13px; font-weight: 800; margin-bottom: 6px; }
     .mp-output-dim { color: var(--muted); font-size: 11px; }
     .mp-output-score { margin-top: 8px; height: 5px; overflow: hidden; background: #eef1f6; border-radius: 999px; }
-    .mp-output-score i { display: block; height: 100%; background: linear-gradient(90deg, var(--accent), var(--accent-2)); border-radius: inherit; }
+    .mp-output-score i { display: block; height: 100%; background: var(--accent); border-radius: inherit; }
     .mp-connector {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-      margin-top: 12px;
-      padding: 10px 14px;
-      border-radius: 8px;
-      background: linear-gradient(90deg, #0f172a, #334155);
-      color: #fff;
-      font-size: 12px;
-      font-weight: 750;
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+      margin-top: 12px; padding: 10px 14px; border-radius: 8px;
+      background: #1e293b; color: #fff; font-size: 12px; font-weight: 750;
     }
-
     @keyframes mpPulse {
-      0%, 100% { transform: scale(1); opacity: .45; }
+      0%,100% { transform: scale(1); opacity: .45; }
       50% { transform: scale(1.5); opacity: 1; }
     }
     @keyframes mpNodeGlow {
-      0%, 100% { box-shadow: 0 0 0 0 rgba(79, 70, 229, 0); }
-      50% { box-shadow: 0 0 0 4px rgba(79, 70, 229, .10); }
+      0%,100% { box-shadow: 0 0 0 0 rgba(79,70,229,0); }
+      50% { box-shadow: 0 0 0 4px rgba(79,70,229,.10); }
     }
 
+    /* ── 响应式 ── */
     @media (max-width: 700px) {
-      .mp-input-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .topbar { padding: 14px 16px; flex-direction: column; align-items: stretch; }
+      .topbar-right { justify-content: flex-start; }
+      .wrap { padding: 14px 12px 28px; }
+      .card-body { padding: 14px; }
+      .q-card-body { flex-direction: column; }
+      .flow-steps { flex-direction: column; }
+      .flow-arrow-wrap { width: 100%; padding-top: 0; justify-content: center; transform: rotate(90deg); }
+      .stat-row { flex-wrap: wrap; }
+      .stat-card { min-width: calc(50% - 5px); }
+      .feat-grid { grid-template-columns: 1fr; }
+      .candidate { grid-template-columns: 26px minmax(72px,96px) 1fr 46px; gap: 8px; }
+      .mp-input-grid { grid-template-columns: repeat(2, minmax(0,1fr)); }
       .mp-layer-grid { grid-template-columns: 1fr; }
       .mp-output-grid { grid-template-columns: 1fr; }
+      .node-msg-row { grid-template-columns: 1fr; gap: 6px; }
+      .node-msg-stat { text-align: left; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .bar, .spinner, .mp-chain-node, .mp-chain-edge .dot { transition: none; animation: none; }
     }
   </style>
 </head>
@@ -710,26 +583,30 @@
   </header>
 
   <main class="wrap">
-    <section class="panel">
-      <div class="panel-head">
-        <div class="panel-title"><span class="dot"></span>用户问题</div>
+    <!-- 区块1：用户问题 -->
+    <section class="card" id="question-card">
+      <div class="card-head">
+        <div class="card-title"><span class="dot"></span>用户问题</div>
         <span class="badge accent" id="q-badge">示例问题</span>
       </div>
-      <div class="panel-body">
-        <div class="question" id="question-text">正在加载…</div>
+      <div class="card-body">
+        <div class="q-card-body">
+          <div class="question" id="question-text">正在加载…</div>
+          <span class="q-tag" id="q-tag-text">加载中</span>
+        </div>
       </div>
     </section>
 
-    <section class="panel" id="macro-panel" hidden>
-      <div class="panel-head">
-        <div class="panel-title"><span class="dot"></span>宏观信息</div>
+    <!-- 区块2：宏观检索概览 -->
+    <section class="card" id="macro-card" hidden>
+      <div class="card-head">
+        <div class="card-title"><span class="dot"></span>宏观检索概览</div>
         <span class="badge success">检索完成</span>
       </div>
-      <div class="panel-body">
-        <div class="macro-grid" id="macro-grid"></div>
-      </div>
+      <div class="card-body" id="macro-body"></div>
     </section>
 
+    <!-- 区块3+：候选答案 + GNN 推理 -->
     <div id="result" aria-live="polite"></div>
 
     <div class="footer">
@@ -739,9 +616,61 @@
   </main>
 
   <script>
+    /* ====== 本地知识图谱数据（实体类型 & 关系标签） ====== */
+    const KG_ENTITIES = {
+      "Q1024": { label: "阿司匹林", type: "药物" },
+      "Q1088": { label: "布洛芬", type: "药物" },
+      "Q1500": { label: "华法林", type: "药物" },
+      "Q1600": { label: "对乙酰氨基酚", type: "药物" },
+      "Q2031": { label: "胃肠道出血", type: "不良反应" },
+      "Q2099": { label: "肾功能损伤", type: "不良反应" },
+      "Q2100": { label: "出血风险增加", type: "不良反应" },
+      "Q2200": { label: "胃溃疡", type: "疾病" },
+      "Q2300": { label: "哮喘", type: "疾病" },
+      "Q3000": { label: "解热镇痛药", type: "药物分类" },
+      "Q3001": { label: "非甾体抗炎药", type: "药物分类" },
+      "Q3002": { label: "抗凝血药", type: "药物分类" },
+      "Q4000": { label: "头痛", type: "适应症" },
+      "Q4001": { label: "发热", type: "适应症" },
+      "Q4002": { label: "血栓", type: "适应症" },
+      "Q5000": { label: "胃黏膜损伤", type: "药理机制" },
+      "Q5001": { label: "COX酶抑制", type: "药理机制" },
+      "Q5002": { label: "血小板聚集抑制", type: "药理机制" },
+    };
+    const KG_RELATIONS = {
+      "R017": { label: "可能引发", hyper_relation_id: "HR03" },
+      "R018": { label: "增强作用", hyper_relation_id: "HR03" },
+      "R019": { label: "合用增加风险", hyper_relation_id: "HR03" },
+      "R020": { label: "禁用于", hyper_relation_id: "HR07" },
+      "R021": { label: "慎用于", hyper_relation_id: "HR07" },
+      "R022": { label: "属于", hyper_relation_id: "HR04" },
+      "R023": { label: "用于治疗", hyper_relation_id: "HR02" },
+      "R024": { label: "可能导致", hyper_relation_id: "HR01" },
+      "R025": { label: "加重", hyper_relation_id: "HR01" },
+      "R026": { label: "影响", hyper_relation_id: "HR08" },
+      "R027": { label: "增加风险", hyper_relation_id: "HR08" },
+    };
+    const KG_HYPER_RELATIONS = {
+      "HR01": { label: "不良反应" },
+      "HR02": { label: "适应症" },
+      "HR03": { label: "药物相互作用" },
+      "HR04": { label: "药物分类" },
+      "HR07": { label: "禁忌症" },
+      "HR08": { label: "药理机制" },
+    };
+    /* 全 KG 出度归一化（max_degree = 11，来自 Q1024） */
+    const KG_NORM_DEGREE = {
+      "Q1024": 1.0000, "Q1088": 0.6364, "Q1500": 0.4545, "Q1600": 0.0000,
+      "Q2031": 0.0000, "Q2099": 0.0000, "Q2100": 0.0000, "Q2200": 0.0000,
+      "Q2300": 0.0000, "Q3000": 0.0000, "Q3001": 0.0000, "Q3002": 0.0000,
+      "Q4000": 0.0000, "Q4001": 0.0000, "Q4002": 0.0000, "Q5000": 0.0909,
+      "Q5001": 0.0909, "Q5002": 0.0909,
+    };
+
     const questionText = document.getElementById("question-text");
-    const macroPanel = document.getElementById("macro-panel");
-    const macroGrid = document.getElementById("macro-grid");
+    const qTagText = document.getElementById("q-tag-text");
+    const macroCard = document.getElementById("macro-card");
+    const macroBody = document.getElementById("macro-body");
     const result = document.getElementById("result");
     const rerunButton = document.getElementById("rerun-button");
     const copyButton = document.getElementById("copy-button");
@@ -766,48 +695,262 @@
       document.querySelectorAll(".q-btn").forEach((btn) => {
         btn.classList.toggle("active", btn.dataset.q === String(q));
       });
-      if (QUESTION_NAMES[q]) qBadge.textContent = QUESTION_NAMES[q];
+      if (QUESTION_NAMES[q]) {
+        qBadge.textContent = QUESTION_NAMES[q];
+        qTagText.textContent = QUESTION_NAMES[q];
+      }
     }
 
     function showLoading() {
-      const panel = element("div", "panel");
-      const body = element("div", "panel-body state");
+      const card = element("section", "card");
+      const body = element("div", "card-body state");
       body.append(element("span", "spinner"), document.createTextNode("正在运行推理…"));
-      panel.append(body);
-      result.replaceChildren(panel);
+      card.append(body);
+      result.replaceChildren(card);
     }
 
     function showError(message) {
-      const panel = element("div", "panel");
-      const body = element("div", "panel-body state error", `请求失败：${message}`);
-      panel.append(body);
-      result.replaceChildren(panel);
+      const card = element("section", "card");
+      const body = element("div", "card-body state error", `请求失败：${message}`);
+      card.append(body);
+      result.replaceChildren(card);
     }
 
     function renderMacroInfo(data) {
-      if (!data.hyper_relations && !data.subgraph_size && !data.topic_entities) return;
+      /* 区块2：宏观检索概览 — 4步流程 + 5统计指标 */
+      const subgraph = data.macro_subgraph || {};
+      const nodes = subgraph.nodes || [];
+      const triples = subgraph.triples || [];
+      const hyperRels = data.selected_hyper_relations || data.hyper_relations || [];
+      const topicIds = data.topic_entity_ids || data.topic_entities || [];
+      const maxHops = data.max_hops || 2;
+      const relationTypes = new Set(triples.map((t) => t[1]));
 
-      const items = [
-        ["超关系", (data.hyper_relations || []).map((x) => x.label + " (" + x.score + ")").join("，") || "—"],
-        ["子图规模", (data.subgraph_size?.nodes || "?") + " 节点 / " + (data.subgraph_size?.edges || "?") + " 边"],
-        ["主题实体", (data.topic_entities || []).join("，") || "—"],
+      macroBody.replaceChildren();
+
+      /* ── 顶部：4步流程 ── */
+      const flowRow = element("div", "flow-steps");
+      const steps = [
+        { icon: "🔗", label: "实体链接", desc: "识别问题中的主题实体" },
+        { icon: "🔍", label: "超关系规划", desc: "LLM 语义匹配，确定搜索方向" },
+        { icon: "⑂", label: "约束扩展", desc: "基于超关系，2-hop 约束搜索" },
+        { icon: "🧊", label: "子图生成", desc: "输出宏观候选子图供 GNN 推理" },
       ];
-
-      macroGrid.replaceChildren();
-      items.forEach(([label, value]) => {
-        const item = element("div", "macro-item");
-        item.append(element("div", "label", label), element("div", "value", value));
-        macroGrid.append(item);
+      steps.forEach((step, i) => {
+        const stepCard = element("div", "flow-step");
+        stepCard.append(
+          element("div", "flow-step-icon", step.icon),
+          element("div", "flow-step-label", step.label),
+          element("div", "flow-step-desc", step.desc),
+        );
+        flowRow.append(stepCard);
+        if (i < steps.length - 1) {
+          const arrowWrap = element("div", "flow-arrow-wrap");
+          arrowWrap.append(element("span", "flow-arrow-icon", "→"));
+          flowRow.append(arrowWrap);
+        }
       });
-      macroPanel.hidden = false;
+      macroBody.append(flowRow);
+
+      /* ── 底部：5组统计卡片 ── */
+      const statRow = element("div", "stat-row");
+      const topicLabels = topicIds.map((eid) => {
+        const kg = KG_ENTITIES[eid];
+        return kg ? kg.label : eid;
+      }).join("，") || "—";
+      const hrLabels = hyperRels.map((hr) => `${hr.label} (${(hr.score * 100).toFixed(0)}%)`).join("，") || "—";
+
+      const statDefs = [
+        { value: topicIds.length, label: "主题实体", sub: topicLabels },
+        { value: hyperRels.length, label: "选定超关系", sub: hrLabels },
+        { value: nodes.length, label: "子图节点数", sub: `${nodes.length} 个实体数量` },
+        { value: triples.length, label: "子图关系数", sub: `${triples.length} 条 关系三元组数量` },
+        { value: `${maxHops} hop`, label: "搜索深度", sub: `${maxHops} hop 约束搜索范围` },
+      ];
+      statDefs.forEach((def) => {
+        const card = element("div", "stat-card");
+        card.append(
+          element("div", "stat-value", String(def.value)),
+          element("div", "stat-label", def.label),
+          element("div", "stat-sub", def.sub),
+        );
+        statRow.append(card);
+      });
+      macroBody.append(statRow);
+
+      macroCard.hidden = false;
+    }
+
+    function renderMacroPruning(data) {
+      /* 区块3：宏观子图裁剪结果 — 实体小框图（初始重要性三因素分解） */
+      const subgraph = data.macro_subgraph || {};
+      const nodes = subgraph.nodes || [];
+      const triples = subgraph.triples || [];
+      const topicSet = new Set(data.topic_entity_ids || data.topic_entities || []);
+      if (!nodes.length) return document.createDocumentFragment();
+
+      /* 预计算：节点度（全 KG 出度归一化，与后端 normalized_degree 一致） */
+      const centrality = (eid) => KG_NORM_DEGREE[eid] || 0;
+
+      /* 预计算：实体链接置信度 */
+      const linkingMap = {};
+      (data.entity_linking || []).forEach((el) => { linkingMap[el.entity_id] = el.confidence; });
+
+      /* 预计算：超关系得分映射 */
+      const hrScoreMap = {};
+      (data.selected_hyper_relations || []).forEach((hr) => { hrScoreMap[hr.relation_id] = hr.score; });
+
+      /* 预计算：每个非主题实体的最佳超关系得分 */
+      const bestHrScore = {};
+      nodes.forEach((n) => {
+        if (n.is_topic || topicSet.has(n.entity_id)) return;
+        let best = 0;
+        triples.forEach((t) => {
+          if (t[2] !== n.entity_id) return;
+          const rel = KG_RELATIONS[t[1]];
+          if (!rel) return;
+          const hrScore = hrScoreMap[rel.hyper_relation_id] || 0;
+          if (hrScore > best) best = hrScore;
+        });
+        bestHrScore[n.entity_id] = best;
+      });
+
+      const panel = element("section", "card");
+      const head = element("div", "card-head");
+      const headTitle = element("div", "card-title");
+      headTitle.append(element("span", "dot"), document.createTextNode("宏观子图裁剪结果"));
+      head.append(headTitle, element("span", "badge accent", `${nodes.length} 个实体 / ${triples.length} 条关系`));
+      panel.append(head);
+      const body = element("div", "card-body");
+
+      const grid = element("div", "feat-grid");
+      const sorted = [...nodes].sort((a, b) => Number(b.initial_importance || 0) - Number(a.initial_importance || 0));
+
+      sorted.forEach((node) => {
+        const eid = node.entity_id;
+        const kg = KG_ENTITIES[eid] || {};
+        const kgType = kg.type || "";
+        const isTopic = node.is_topic || topicSet.has(eid);
+        const importance = Math.max(0, Math.min(1, Number(node.initial_importance) || 0));
+        const linkConf = linkingMap[eid] || 0;
+        const hrScore = bestHrScore[eid] || 0;
+        const cent = centrality(eid);
+
+        const card = element("div", "feat-card");
+        card.dataset.nodeId = eid;
+
+        /* 头部 */
+        const cardHead = element("div", "feat-card-head");
+        cardHead.append(element("div", "feat-card-name", node.label || eid));
+        if (isTopic) cardHead.append(element("span", "type-badge topic", "主题实体"));
+        else if (kgType) cardHead.append(element("span", "type-badge answer", kgType));
+        card.append(cardHead);
+
+        const cardBody = element("div", "feat-card-body");
+
+        /* ① 来源 */
+        const srcRow = element("div", "feat-source semantic");
+        const srcIcon = element("span", "feat-source-icon", isTopic ? "🔗" : "⑂");
+        const srcInfo = element("div", "feat-source-info");
+        srcInfo.append(
+          element("div", "feat-source-label", isTopic ? "来源 · 主题实体（实体链接）" : "来源 · 超关系约束扩展"),
+          element("div", "feat-source-value", isTopic ? `ID: ${eid}  ·  问题中直接识别` : `ID: ${eid}  ·  2-hop 约束搜索发现`),
+          element("div", "feat-source-dim", kgType ? `类型: ${kgType}` : "")
+        );
+        srcRow.append(srcIcon, srcInfo);
+        cardBody.append(srcRow);
+
+        if (isTopic) {
+          /* ② 链接置信度 */
+          const linkRow = element("div", "feat-source structure");
+          linkRow.append(
+            element("span", "feat-source-icon", "🎯"),
+            element("div", "feat-source-info", ""),
+          );
+          linkRow.querySelector(".feat-source-info").append(
+            element("div", "feat-source-label", `实体链接置信度 = ${linkConf.toFixed(3)}  ·  权重 0.7`),
+            element("div", "feat-source-dim", "LLM 实体链接匹配得分")
+          );
+          cardBody.append(linkRow);
+
+          /* ③ 中心性 */
+          const centRow = element("div", "feat-source attr");
+          centRow.append(
+            element("span", "feat-source-icon", "🕸"),
+            element("div", "feat-source-info", ""),
+          );
+          centRow.querySelector(".feat-source-info").append(
+            element("div", "feat-source-label", `节点中心性 = ${cent.toFixed(3)}  ·  权重 0.3`),
+            element("div", "feat-source-dim", "全 KG 出度归一化（max_degree=11）")
+          );
+          cardBody.append(centRow);
+        } else {
+          /* ② 超关系得分 */
+          const hrName = (() => {
+            for (const t of triples) {
+              if (t[2] !== eid) continue;
+              const rel = KG_RELATIONS[t[1]];
+              if (!rel) continue;
+              const hr = KG_HYPER_RELATIONS[rel.hyper_relation_id];
+              if (hr && hrScoreMap[rel.hyper_relation_id] === hrScore) return hr.label;
+            }
+            return "超关系";
+          })();
+          const hrRow = element("div", "feat-source structure");
+          hrRow.append(
+            element("span", "feat-source-icon", "🔍"),
+            element("div", "feat-source-info", ""),
+          );
+          hrRow.querySelector(".feat-source-info").append(
+            element("div", "feat-source-label", `超关系得分「${hrName}」= ${hrScore.toFixed(3)}  ·  权重 0.6`),
+            element("div", "feat-source-dim", "将该实体引入子图的最高分超关系")
+          );
+          cardBody.append(hrRow);
+
+          /* ③ 中心性 */
+          const centRow = element("div", "feat-source attr");
+          centRow.append(
+            element("span", "feat-source-icon", "🕸"),
+            element("div", "feat-source-info", ""),
+          );
+          centRow.querySelector(".feat-source-info").append(
+            element("div", "feat-source-label", `节点中心性 = ${cent.toFixed(3)}  ·  权重 0.4`),
+            element("div", "feat-source-dim", "全 KG 出度归一化（max_degree=11）")
+          );
+          cardBody.append(centRow);
+        }
+
+        /* ⑤ 重要性进度条 */
+        const imp = element("div", "importance");
+        const impHead = element("div", "importance-head");
+        impHead.append(
+          element("div", "importance-label", "宏观初始重要性"),
+          element("div", "importance-value", `${(importance * 100).toFixed(1)}%`)
+        );
+        const impTrack = element("div", "importance-track");
+        const impFill = element("div", "importance-fill");
+        impFill.style.width = `${(importance * 100).toFixed(1)}%`;
+        impTrack.append(impFill);
+        imp.append(impHead, impTrack);
+        cardBody.append(imp);
+
+        card.append(cardBody);
+        grid.append(card);
+      });
+
+      body.append(grid);
+      panel.append(body);
+      return panel;
     }
 
     function renderCandidates(candidates) {
-      const panel = element("section", "panel");
-      const head = element("div", "panel-head");
-      head.append(element("div", "panel-title", "候选答案"), element("span", "badge accent", `${candidates.length} 个`));
+      const panel = element("section", "card");
+      const head = element("div", "card-head");
+      const headTitle = element("div", "card-title");
+      headTitle.append(element("span", "dot"), document.createTextNode("候选答案"));
+      head.append(headTitle, element("span", "badge accent", `${candidates.length} 个`));
       panel.append(head);
-      const body = element("div", "panel-body");
+      const body = element("div", "card-body");
 
       if (!candidates.length) {
         body.append(element("div", "empty", "暂未找到候选答案"));
@@ -852,11 +995,13 @@
     }
 
     function renderPaths(paths, topicIds) {
-      const panel = element("section", "panel");
-      const head = element("div", "panel-head");
-      head.append(element("div", "panel-title", "推理路径"), element("span", "badge accent", `${paths.length} 条`));
+      const panel = element("section", "card");
+      const head = element("div", "card-head");
+      const headTitle = element("div", "card-title");
+      headTitle.append(element("span", "dot"), document.createTextNode("推理路径"));
+      head.append(headTitle, element("span", "badge accent", `${paths.length} 条`));
       panel.append(head);
-      const body = element("div", "panel-body");
+      const body = element("div", "card-body");
 
       if (!paths.length) {
         body.append(element("div", "empty", "暂未生成可解释路径"));
@@ -1031,11 +1176,13 @@
     }
 
     function renderGnnSubgraph(viz, answerIds) {
-      const panel = element("section", "panel");
-      const head = element("div", "panel-head");
-      head.append(element("div", "panel-title", "GNN 输入子图"), element("span", "badge accent", `${viz.nodes.length} 节点 / ${viz.edges.length} 边`));
+      const panel = element("section", "card");
+      const head = element("div", "card-head");
+      const headTitle = element("div", "card-title");
+      headTitle.append(element("span", "dot"), document.createTextNode("GNN 输入子图"));
+      head.append(headTitle, element("span", "badge accent", `${viz.nodes.length} 节点 / ${viz.edges.length} 边`));
       panel.append(head);
-      const body = element("div", "panel-body");
+      const body = element("div", "card-body");
       const wrap = element("div", "gnn-graph-wrap");
       renderGraphSvg(wrap, viz, answerIds, {
         onNodeClick: (entityId) => {
@@ -1070,9 +1217,9 @@
         sourcesRow.append(box);
       });
       flow.append(sourcesRow);
-      flow.append(element("span", "flow-arrow", "↓"));
+      flow.append(element("span", "flow-arrow-icon", "↓"));
       flow.append(element("div", "flow-center", `${spec.input_dim ?? 129} 维节点表示`));
-      flow.append(element("span", "flow-arrow", "↓"));
+      flow.append(element("span", "flow-arrow-icon", "↓"));
       flow.append(element("div", "flow-center rgcn", "输入 R-GCN"));
       return flow;
     }
@@ -1080,11 +1227,13 @@
     function renderFeatureFusion(viz, answerIds) {
       const spec = viz.feature_spec || {};
       const answerSet = new Set(answerIds || []);
-      const panel = element("section", "panel");
-      const head = element("div", "panel-head");
-      head.append(element("div", "panel-title", "节点多源特征融合"), element("span", "badge accent", `最终输入 ${spec.input_dim ?? "?"} 维`));
+      const panel = element("section", "card");
+      const head = element("div", "card-head");
+      const headTitle = element("div", "card-title");
+      headTitle.append(element("span", "dot"), document.createTextNode("节点多源特征融合"));
+      head.append(headTitle, element("span", "badge accent", `最终输入 ${spec.input_dim ?? "?"} 维`));
       panel.append(head);
-      const body = element("div", "panel-body");
+      const body = element("div", "card-body");
       body.append(renderFusionFlow(spec));
 
       const grid = element("div", "feat-grid");
@@ -1166,12 +1315,14 @@
     }
 
     function renderMessagePassing(viz, answerIds) {
-      const panel = element("section", "panel");
+      const panel = element("section", "card");
       const layers = viz.layers || [];
-      const head = element("div", "panel-head");
-      head.append(element("div", "panel-title", "R-GCN 消息传播"), element("span", "badge accent", `${layers.length} 层`));
+      const head = element("div", "card-head");
+      const headTitle = element("div", "card-title");
+      headTitle.append(element("span", "dot"), document.createTextNode("R-GCN 消息传播"));
+      head.append(headTitle, element("span", "badge accent", `${layers.length} 层`));
       panel.append(head);
-      const body = element("div", "panel-body");
+      const body = element("div", "card-body");
 
       const controls = element("div", "mp-controls");
       const tabs = element("div", "viz-tabs");
@@ -1327,7 +1478,7 @@
     }
 
     function mpArrow() {
-      return element("div", "mp-flow-arrow", "↓");
+      return element("div", "mp-flow-arrow-down", "↓");
     }
 
     function mpFlowRow(items) {
@@ -1495,11 +1646,13 @@
     }
 
     function renderMessagePassingV2(viz, answerIds) {
-      const panel = element("section", "panel");
-      const head = element("div", "panel-head");
-      head.append(element("div", "panel-title", "R-GCN 消息传播"), element("span", "badge accent", "2层关系图卷积"));
+      const panel = element("section", "card");
+      const head = element("div", "card-head");
+      const headTitle = element("div", "card-title");
+      headTitle.append(element("span", "dot"), document.createTextNode("R-GCN 消息传播"));
+      head.append(headTitle, element("span", "badge accent", "2层关系图卷积"));
       panel.append(head);
-      const body = element("div", "panel-body");
+      const body = element("div", "card-body");
       body.append(renderInputSection(viz));
       const layers = viz.layers || [];
       layers.slice(0, 2).forEach((layer, index) => {
@@ -1526,24 +1679,43 @@
     async function runInference() {
       rerunButton.disabled = true;
       copyButton.disabled = true;
-      macroPanel.hidden = true;
+      macroCard.hidden = true;
       showLoading();
 
       try {
         const params = new URLSearchParams(window.location.search);
         const qParam = params.get("q") || "1";
-        setActiveQuestion(Number(qParam));
+        const qi = Number(qParam);
+        setActiveQuestion(qi);
+
+        /* 并行请求：API（GNN推理）+ result.json（宏观子图原始数据） */
         const apiUrl = "/api/macro-infer?q=" + qParam;
-        const response = await fetch(apiUrl, { headers: { Accept: "application/json" } });
-        if (!response.ok) throw new Error(`服务器返回 ${response.status}`);
+        const [apiResp, resultResp] = await Promise.all([
+          fetch(apiUrl, { headers: { Accept: "application/json" } }),
+          fetch("result.json", { headers: { Accept: "application/json" } }).catch(() => null),
+        ]);
 
-        const data = await response.json();
-        const candidates = Array.isArray(data.candidates) ? data.candidates : [];
-        const paths = Array.isArray(data.paths) ? data.paths : [];
+        if (!apiResp.ok) throw new Error(`服务器返回 ${apiResp.status}`);
 
-        questionText.textContent = data.question || "未提供问题文本";
-        renderMacroInfo(data);
-        result.replaceChildren(renderCandidates(candidates), renderPaths(paths, data.topic_entities), renderGnnVisualization(data));
+        const apiData = await apiResp.json();
+        let resultData = null;
+        if (resultResp && resultResp.ok) {
+          const allResults = await resultResp.json();
+          resultData = allResults.find((entry) => entry.question_id === "q" + qi) || null;
+        }
+
+        /* 宏观数据优先用 result.json，回退到 API */
+        const macroData = resultData || apiData;
+        const candidates = Array.isArray(apiData.candidates) ? apiData.candidates : [];
+        const paths = Array.isArray(apiData.paths) ? apiData.paths : [];
+
+        questionText.textContent = apiData.question || macroData.question_text || "未提供问题文本";
+        renderMacroInfo(macroData);
+        result.replaceChildren(
+          renderCandidates(candidates),
+          renderPaths(paths, apiData.topic_entities),
+          renderGnnVisualization(apiData)
+        );
       } catch (error) {
         showError(error instanceof Error ? error.message : "未知错误");
       } finally {
